@@ -35,13 +35,6 @@ export async function getOnePostById(id){
     )
 }
 
-export async function updatePost(url,comment,id){
-    return await connection.query(
-        'UPDATE posts SET url=$1,comment=$2 WHERE id=$3',
-        [url,comment,id]
-    )
-}
-
 export async function getAllPosts(){
     return await connection.query(
         `SELECT users.name,
@@ -71,5 +64,33 @@ export async function getPostsByUserId (userId) {
         LEFT JOIN likes ON likes."postId"=posts.id 
         WHERE posts."userId"=$1`,
         [userId]
+    )
+}
+
+export async function updatePost(url,comment,id){
+    return await connection.query(
+        'UPDATE posts SET url=$1,comment=$2 WHERE id=$3',
+        [url,comment,id]
+    )
+}
+
+export async function deleteOnePost(id){
+    return await connection.query(
+        'DELETE FROM posts WHERE id=$1',
+        [id]
+    )
+}
+
+export async function deleteHashtagLink(id){
+    return await connection.query(
+        'DELETE FROM hashtagPosts WHERE "postId"=$1',
+        [id]
+    )
+}
+
+export async function deleteLikeLink(id){
+    return await connection.query(
+        'DELETE FROM likes WHERE "postId"=$1',
+        [id]
     )
 }

@@ -5,7 +5,10 @@ import {
     getAllPosts,
     getOnePost,
     getOnePostById,
-    verifyPostHashtags
+    verifyPostHashtags,
+    deleteOnePost,
+    deleteHashtagLink,
+    deleteLikeLink
 } from "../repositories/postRepository.js";
 
 import {
@@ -90,6 +93,20 @@ export async function editPost(req, res) {
     }
 }
 
-export async function deletePost() {
-
+export async function deletePost(req,res) {
+    const authUser = res.locals.authUser
+    const postId = req.params.id
+    try {
+        const foundPost = await getOnePostById(postId);
+        if (foundPost.rows[0].userId === authUser.id) {
+            await deleteOnePost(postId);
+            await deleteHashtagLink(postId);
+            await deleteLikeLink(postId);
+        } else {
+            return res.sendStatus(401);
+        }
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
 }
