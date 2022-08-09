@@ -19,7 +19,7 @@ export async function loginMiddleware(req, res, next) {
   const requisite = req.body;
 
   try {
-    const user = verifyUserExistent(user.email);
+    const user = verifyUserExistent(requisite.email);
     if (user.rows.length === 0) {
       return res.status(401).send("Usuário Inexistente");
     }
