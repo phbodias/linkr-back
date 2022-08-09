@@ -8,7 +8,7 @@ import {
     deletePost
 } from "../controllers/postControllers.js";
 
-const router = Router()
+const router = Router();
 
 router.post("/posts", validateSchemas(postSchema), createPost)
 router.get("/posts", listAllPosts)
