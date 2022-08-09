@@ -1,8 +1,11 @@
-import connection from "../databases/postgres.js";
+import connection from "../dbStrategy/database.js";
 
 export async function registerMiddleware(req, res, next) {
   const user = req.body;
-  if (user.pictureUrl) checkUrl(user.pictureUrl);
+  if (user.pictureUrl){
+    const validUrl = checkUrl(user.pictureUrl);
+    if (!validUrl) return res.status(422).send("Envie uma imagem válida, ou não envie nenhuma!")
+  }
   try {
     const userExists = await connection.query(
       `SELECT * FROM users

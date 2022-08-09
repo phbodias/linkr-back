@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import connection from "../databases/postgres.js";
+import connection from "../dbStrategy/database.js";
 
 export async function registerController(req, res) {
   try {
