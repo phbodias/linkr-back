@@ -1,6 +1,5 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import connection from "../dbStrategy/database.js";
 import { insertNewUser } from "../repositories/authRepository.js";
 
 export async function registerController(req, res) {

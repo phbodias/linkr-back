@@ -1,4 +1,3 @@
-import connection from "../dbStrategy/database.js";
 import { verifyUserExistent } from "../repositories/authRepository.js";
 
 export async function registerMiddleware(req, res, next) {
@@ -9,7 +8,7 @@ export async function registerMiddleware(req, res, next) {
       return res.status(409).send("Este email já foi cadastrado!");
     }
   } catch (e) {
-    return res.status(500).send(e.message);
+    return res.status(500).send(userExists);
   }
 
   next();
