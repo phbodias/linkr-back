@@ -3,13 +3,13 @@ import cors from 'cors';
 import './application/setup.js';
 import routers from './routers/index.js';
 
-const app = express()
+const app = express();
 
-app.use(express.json())
-app.use(cors())
+app.use([express.json,cors(),routers]);
 
-app.use(routers)
+const PORT = process.env.PORT || 4001;
 
-app.listen(process.env.PORT,()=>{
-    console.log(`Listening on ${process.env.PORT}`)
-})
+app.listen(PORT,()=>{
+    console.log(`Mode: ${process.env.MODE || "DEV"}`);
+    console.log(`Listening on ${process.env.PORT} port`)
+});
