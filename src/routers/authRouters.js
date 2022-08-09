@@ -13,7 +13,7 @@ import { signUpSchema, loginSchema } from "../schemas/authSchemas.js";
 const router = Router();
 
 router.post(
-  "/signup",
+  "/sign-up",
   validateSchemas(signUpSchema),
   registerMiddleware,
   registerController

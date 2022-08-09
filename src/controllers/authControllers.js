@@ -1,19 +1,14 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import connection from "../dbStrategy/database.js";
+import { insertNewUser } from "../repositories/authRepository.js";
 
 export async function registerController(req, res) {
   try {
     const user = req.body;
 
     user.password = bcrypt.hashSync(user.password, 10);
-    await connection.query(
-      `INSERT INTO users 
-      (name, email, password, "profilePic") 
-      VALUES ($1, $2, $3, $4);`,
-      [user.name, user.email, user.password, user.profilePic]
-    );
-
+    await insertNewUser(user.name, user.email, user.password, user.profilePic);
     res.status(201).send("Usuário criado com sucesso!");
   } catch (e) {
     return res.status(500).send(e.message);
