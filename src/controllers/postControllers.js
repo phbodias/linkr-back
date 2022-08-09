@@ -3,7 +3,9 @@ import {
     insertPostHashtags,
     getPostsByUserId,
     getAllPosts,
-    getOnePost
+    getOnePost,
+    getOnePostById,
+    verifyPostHashtags
 } from "../repositories/postRepository.js";
 
 import {
@@ -21,9 +23,9 @@ export async function createPost(req, res) {
             let hashtagId
             req.body.hashtags.map(async (h) => {
                 hashtagId = await getOneHashtag(h);
-                if(hashtagId.rows.length===0){
-                await insertHashtag(h);
-                hashtagId = await getOneHashtag(h);
+                if (hashtagId.rows.length === 0) {
+                    await insertHashtag(h);
+                    hashtagId = await getOneHashtag(h);
                 }
                 await insertPostHashtags(postId.rows[0].id, hashtagId.rows[0].id);
             });
@@ -56,8 +58,36 @@ export async function listAllPosts(_, res) {
     }
 }
 
-export async function editPost() {
-
+export async function editPost(req, res) {
+    const authUser = res.locals.authUser
+    const postId = req.params.id
+    try {
+        const foundPost = await getOnePostById(postId);
+        if (foundPost.rows[0].userId === authUser.id) {
+            await updatePost(req.body.url, req.body.comment, postId);
+            if (req.body.hashtags) {
+                req.body.hashtags.map(async (h) => {
+                    hashtagId = await getOneHashtag(h);
+                    if (hashtagId.rows.length === 0) {
+                        await insertHashtag(h);
+                        hashtagId = await getOneHashtag(h);
+                        await insertPostHashtags(postId, hashtagId.rows[0].id);
+                    } else {
+                        const foundLink = await verifyPostHashtags(postId, hashtagId.rows[0].id);
+                        if (foundLink.rows.length === 0) {
+                            await insertPostHashtags(postId, hashtagId.rows[0].id);
+                        }
+                    }
+                });
+            }
+            return res.sendStatus(200);
+        } else {
+            return res.sendStatus(401);
+        }
+    } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+    }
 }
 
 export async function deletePost() {
