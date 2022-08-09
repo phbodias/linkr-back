@@ -8,6 +8,8 @@ export async function createPost (req,res) {
     const authUser = res.locals.authUser
     try {
         await insertPost(req.body.url,req.body.comment, authUser.id);
+        /*await insertHashtags(req.body.hashtags);
+        await insertPostHashtags(req.body.text);*/
         res.sendStatus(201);
     } catch (error) {
         console.log(error);

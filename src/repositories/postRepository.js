@@ -9,13 +9,34 @@ export async function insertPost(url,comment,userId){
 
 export async function getAllPosts(){
     return await connection.query(
-        'SELECT * FROM posts'
-    )
+        `SELECT users.name,
+        "profilePicture"."imageUrl",
+        posts.url,
+        posts.comment,
+        hashtags.text,
+        likes."userLikedId" FROM posts 
+        LEFT JOIN users ON users.id=posts."userId"
+        LEFT JOIN "profilePicture" ON "profilePicture"."userId"=users.id
+        LEFT JOIN "hashtagPosts" ON posts.id="hashtagPosts"."postId"
+        LEFT JOIN "hashtags" ON hashtags.id="hashtagPosts"."hashtagId"
+        LEFT JOIN likes ON likes."postId"=posts.id`
+    );
 }
 
 export async function getPostsByUserId (userId) {
     return await connection.query(
-        'SELECT * FROM posts WHERE "userId"=$1',
+        `SELECT users.name,
+        "profilePicture"."imageUrl",
+        posts.url,
+        posts.comment,
+        hashtags.text,
+        likes."userLikedId" FROM posts 
+        LEFT JOIN users ON users.id=posts."userId"
+        LEFT JOIN "profilePicture" ON "profilePicture"."userId"=users.id
+        LEFT JOIN "hashtagPosts" ON posts.id="hashtagPosts"."postId"
+        LEFT JOIN "hashtags" ON hashtags.id="hashtagPosts"."hashtagId"
+        LEFT JOIN likes ON likes."postId"=posts.id 
+        WHERE posts."userId"=$1`,
         [userId]
     )
 }
