@@ -9,9 +9,9 @@ export async function registerController(req, res) {
     user.password = bcrypt.hashSync(user.password, 10);
     await connection.query(
       `INSERT INTO users 
-      (name, email, password) 
-      VALUES ($1, $2, $3);`,
-      [user.name, user.email, user.password]
+      (name, email, password, "profilePic") 
+      VALUES ($1, $2, $3, $4);`,
+      [user.name, user.email, user.password, user.profilePic]
     );
 
     res.status(201).send("Usuário criado com sucesso!");
@@ -26,7 +26,7 @@ export async function loginController(req, res) {
 
   try {
     if (user && bcrypt.compareSync(requisite.password, user.password)) {
-      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      const token = jwt.sign({ id: user.id }, process.env.TOKEN_SECRET, {
         expiresIn: "12h",
       });
       return res.status(200).send({ token });

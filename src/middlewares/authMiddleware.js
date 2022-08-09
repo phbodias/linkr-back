@@ -2,14 +2,10 @@ import connection from "../dbStrategy/database.js";
 
 export async function registerMiddleware(req, res, next) {
   const user = req.body;
-  if (user.pictureUrl){
-    const validUrl = checkUrl(user.pictureUrl);
-    if (!validUrl) return res.status(422).send("Envie uma imagem válida, ou não envie nenhuma!")
-  }
   try {
     const userExists = await connection.query(
       `SELECT * FROM users
-        WHERE email = $1;`,
+       WHERE email = $1;`,
       [user.email]
     );
     if (userExists.rows.length > 0) {
@@ -28,7 +24,7 @@ export async function loginMiddleware(req, res, next) {
   try {
     const user = await connection.query(
       `SELECT * FROM users
-            WHERE email=$1;`,
+       WHERE email=$1;`,
       [requisite.email]
     );
     if (user.rows.length === 0) {
