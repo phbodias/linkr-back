@@ -20,10 +20,13 @@ export async function createPost(req, res) {
             const postId = await getOnePost(req.body.url, req.body.comment, authUser.id);
             let hashtagId
             req.body.hashtags.map(async (h) => {
+                hashtagId = await getOneHashtag(h);
+                if(hashtagId.rows.length===0){
                 await insertHashtag(h);
-                hashtagId = await getOneHashtag(req.body.hashtags);
+                hashtagId = await getOneHashtag(h);
+                }
                 await insertPostHashtags(postId.rows[0].id, hashtagId.rows[0].id);
-            })
+            });
         }
         res.sendStatus(201);
     } catch (error) {
