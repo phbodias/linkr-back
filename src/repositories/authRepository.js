@@ -2,10 +2,8 @@ import connection from "../dbStrategy/database.js";
 
 export async function verifyUserExistent(email) {
   return await connection.query(
-    `
-    SELECT * FROM users
-    WHERE email = $1;
-    `,
+    `SELECT * FROM users
+     WHERE email = $1;`,
     [email]
   );
 }

@@ -1,18 +1,14 @@
-import connection from "../dbStrategy/database.js";
+import { verifyUserExistent } from "../repositories/authRepository.js";
 
 export async function registerMiddleware(req, res, next) {
   const user = req.body;
   try {
-    const userExists = await connection.query(
-      `SELECT * FROM users
-       WHERE email = $1;`,
-      [user.email]
-    );
+    const userExists = await verifyUserExistent(user.email);
     if (userExists.rows.length > 0) {
       return res.status(409).send("Este email já foi cadastrado!");
     }
   } catch (e) {
-    return res.status(500).send(e.message);
+    return res.status(500).send(userExists);
   }
 
   next();
@@ -22,11 +18,7 @@ export async function loginMiddleware(req, res, next) {
   const requisite = req.body;
 
   try {
-    const user = await connection.query(
-      `SELECT * FROM users
-       WHERE email=$1;`,
-      [requisite.email]
-    );
+    const user = await verifyUserExistent(requisite.email);
     if (user.rows.length === 0) {
       return res.status(401).send("Usuário Inexistente");
     }
@@ -36,14 +28,5 @@ export async function loginMiddleware(req, res, next) {
     next();
   } catch (e) {
     return res.status(500).send(e.message);
-  }
-}
-
-function checkUrl(string) {
-  try {
-    let url = new URL(string);
-    return true;
-  } catch (err) {
-    return false;
   }
 }
