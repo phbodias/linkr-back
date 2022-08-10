@@ -8,7 +8,7 @@ export async function registerController(req, res) {
     user.password = bcrypt.hashSync(user.password, 10);
     await insertNewUser(user.name, user.email, user.password, user.profilePic);
     const userCreated = await verifyUserExistent(user.email);
-    const token = await createToken(userCreated, req.body.password);
+    const token = await createToken(userCreated.rows[0], req.body.password);
     if (!token) return res.status(401).send(user, req.body.password);
     return res.status(201).send({ token });
   } catch (e) {
