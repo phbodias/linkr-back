@@ -7,9 +7,19 @@ export async function insertHashtag(text){
         );
 }
 
-export async function getOneHashtag(text){
+export async function getHashtagByText(text){
     return await connection.query(
         'SELECT id FROM hashtags WHERE text=$1',
         [text]
+        );
+}
+
+export async function getHashtagByPostId(postId){
+    return await connection.query(
+        `SELECT hashtags.text 
+        FROM "hashtagPosts" 
+        JOIN hashtags ON hashtags.id="hashtagPosts"."hashtagId" 
+        WHERE "hastagPosts"."postId"=$1`,
+        [postId]
         );
 }
