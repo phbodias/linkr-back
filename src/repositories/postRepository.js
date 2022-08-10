@@ -43,7 +43,9 @@ export async function getAllPosts(){
         posts.comment as "postComment",
         posts.id as "postId" 
         FROM posts
-        LEFT JOIN users ON users.id=posts."userId"`
+        LEFT JOIN users ON users.id=posts."userId"
+        ORDER BY posts."createdAt" DESC
+        LIMIT 20`
     );
 }
 
@@ -56,7 +58,9 @@ export async function getPostsByUserId (userId) {
         posts.id as "postId"
         FROM posts
         LEFT JOIN users ON users.id=posts."userId"
-        WHERE posts."userId"=$1`,
+        WHERE posts."userId"=$1
+        ORDER BY posts."createdAt" DESC
+        LIMIT 20`,
         [userId]
     )
 }
