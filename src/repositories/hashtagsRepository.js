@@ -35,6 +35,12 @@ export async function insertHashtagsPosts(postId, hashtagId){
     return rowCount;
 }
 
+export async function selectPostsByHashtag(hashtag){
+    // const {rows:hashtags} = await connection.query(`
+    //     SELECT 
+    // `)
+}
+
 export const hashtagsRepository = { 
     insertHashtags,
     selectHashtags,

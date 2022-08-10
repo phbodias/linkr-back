@@ -1,9 +1,10 @@
 import { Router } from "express";
 import tokenVerify from "../middlewares/tokenVerify.js";
-import { gethashtags } from "../controllers/hashtagsControllers.js";
+import { getHashtags, getPostsByHashtag } from "../controllers/hashtagsControllers.js";
 
 const router = Router();
 
-router.get('/hashtags', tokenVerify, gethashtags);
+router.get('/hashtags', tokenVerify, getHashtags);
+//router.get('/hashtags/:hashtag', tokenVerify, getPostsByHashtag)
 
 export default router;
