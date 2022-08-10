@@ -3,10 +3,8 @@ import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
 export async function createHashtags(_req,res,next){
     const {body}=res.locals;
     const {comment} = body;
-    console.log(comment,!comment)
-    if(!comment) {
-        return next()
-    };
+    
+    if(!comment) return next();
         
     body.hashtags=getHashtagsFromComment(comment,next);
 
@@ -37,7 +35,7 @@ function getHashtagsFromComment(comment,next){
     const hashtagsArray=comment.match(/#[A-z]{1,}(?=\W|$)/g);
         
     if(hashtagsArray.length===0){ 
-        return next()
+        return next();
     }
     
     return hashtagsArray.map(hashtag =>{
