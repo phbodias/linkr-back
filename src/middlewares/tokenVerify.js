@@ -1,17 +1,13 @@
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 
-const SECRET = process.env.TOKEN_SECRET || 'secret'
+export default async function tokenVerify(req, res, next) {
+  const { authorization } = req.headers;
+  const token = authorization?.replace("Bearer ", "");
 
-export default function tokenVerify(req, res, next) {
-    const token = req.headers.authorization || null;
-    if (!token) {
-        return res.sendStatus(401);
-    }
-    const user = jwt.verify(token?.replace("Bearer ", ""),SECRET);
-    if (!user) {
-        return res.sendStatus(401);
-    } else {
-        res.locals.authUser = user;
-        next();
-    }
+  jwt.verify(token, process.env.TOKEN_SECRET, (err, decoded) => {
+    if (err) return res.status(401).send("Token inválido");
+    res.locals.userId = decoded.id;
+  });
+
+  next();
 }

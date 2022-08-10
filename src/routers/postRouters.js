@@ -16,7 +16,7 @@ const router = Router();
 router.post("/posts", tokenVerify, validateSchemas(postSchema), createHashtags ,createPost);
 router.get("/posts", tokenVerify, listAllPosts);
 router.get("/timeline", tokenVerify, listUserPosts);
-router.put("/posts/:id", tokenVerify, editPost);
+router.put("/posts/:id", tokenVerify, validateSchemas(postSchema), editPost);
 router.delete("/posts/:id", tokenVerify, deletePost);
 
 export default router;
