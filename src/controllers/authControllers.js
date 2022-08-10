@@ -5,11 +5,12 @@ import { insertNewUser, verifyUserExistent } from "../repositories/authRepositor
 export async function registerController(req, res) {
   try {
     const user = req.body;
+    const requisite = req.body;
     user.password = bcrypt.hashSync(user.password, 10);
     await insertNewUser(user.name, user.email, user.password, user.profilePic);
     const userCreated = await verifyUserExistent(user.email);
-    const token = await createToken(userCreated.rows[0], req.body.password);
-    if (!token) return res.status(401).send(userCreated.rows[0]);
+    const token = await createToken(userCreated.rows[0], requisite.password);
+    if (!token) return res.status(401).send(requisite.password);
     return res.status(201).send({ token });
   } catch (e) {
     return res.status(500).send(e.message);
