@@ -1,4 +1,4 @@
-import express from 'express';
+import express, {json} from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import './application/setup.js';
@@ -9,11 +9,9 @@ dotenv.config();
 const app = express()
 const PORT = process.env.PORT || 4000;
 
-app.use(express.json())
-app.use(cors())
-
-app.use(routers)
+app.use([json(),cors(),routers]);
 
 app.listen(PORT,()=>{
-    console.log(`Listening on ${PORT}`)
-})
+    console.log(`Mode: ${process.env.MODE || "DEV"}`);
+    console.log(`Listening on ${process.env.PORT} port`)
+});

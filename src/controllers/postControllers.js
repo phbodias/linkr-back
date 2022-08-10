@@ -12,6 +12,8 @@ import {
     deleteLikeLink
 } from "../repositories/postRepository.js";
 
+ import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
+
 import {
     getHashtagByPostId,
     getHashtagByText,
@@ -23,24 +25,19 @@ import { getLikeByPostId } from "../repositories/likesRepository.js";
 
 export async function createPost(req, res) {
     const authUser = res.locals.authUser
+    const {body}=res.locals;
+    const {hashtagsId} = res.locals;
     try {
-        await insertPost(req.body.url, req.body.comment, authUser.id);
-        if (req.body.hashtags) {
-            const postId = await getOnePost(req.body.url, req.body.comment, authUser.id);
-            let hashtagId
-            req.body.hashtags.map(async (h) => {
-                hashtagId = await getHashtagByText(h);
-                if (hashtagId.rows.length === 0) {
-                    await insertHashtag(h);
-                    hashtagId = await getHashtagByText(h);
-                }
-                await insertPostHashtags(postId.rows[0].id, hashtagId.rows[0].id);
-            });
+        const {rows:postInserted} = await insertPost(body.url, body.comment, authUser.id);
+        const postId = postInserted[0].id;
+        for (const id of hashtagsId){
+            const rowCount = await hashtagsRepository.insertHashtagsPosts(postId,id);
+            if(rowCount===0) return res.status(500).send("Something went wrong when adding new values to hashtagsPosts table");
         }
-        res.sendStatus(201);
+        return res.sendStatus(201);
     } catch (error) {
         console.log(error);
-        res.sendStatus(500);
+        return res.sendStatus(500);
     }
 }
 
