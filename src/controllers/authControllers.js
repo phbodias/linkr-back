@@ -1,14 +1,21 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { insertNewUser, verifyUserExistent } from "../repositories/authRepository.js";
+import {
+  insertNewUser,
+  verifyUserExistent,
+} from "../repositories/authRepository.js";
 
 export async function registerController(req, res) {
   try {
     const user = req.body;
-    await insertNewUser(user.name, user.email, bcrypt.hashSync(user.password, 10), user.profilePic);
+    await insertNewUser(
+      user.name,
+      user.email,
+      bcrypt.hashSync(user.password, 10),
+      user.profilePic
+    );
     const userCreated = await verifyUserExistent(user.email);
     const token = await createToken(userCreated.rows[0], user.password);
-    if (!token) return res.status(401).send(user.password);
     return res.status(201).send({ token });
   } catch (e) {
     return res.status(500).send(e.message);
