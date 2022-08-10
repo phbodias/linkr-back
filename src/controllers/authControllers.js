@@ -1,14 +1,15 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { insertNewUser } from "../repositories/authRepository.js";
+import { insertNewUser, verifyUserExistent } from "../repositories/authRepository.js";
 
 export async function registerController(req, res) {
   try {
     const user = req.body;
     user.password = bcrypt.hashSync(user.password, 10);
-    const token = await createToken(user, req.body.password);
-    if (!token) return res.status(401).send(user, req.body.password);
     await insertNewUser(user.name, user.email, user.password, user.profilePic);
+    const userCreated = await verifyUserExistent(user.email);
+    const token = await createToken(userCreated, req.body.password);
+    if (!token) return res.status(401).send(user, req.body.password);
     return res.status(201).send({ token });
   } catch (e) {
     return res.status(500).send(e.message);
@@ -22,7 +23,7 @@ export async function loginController(req, res) {
   try {
     const token = await createToken(user, requisite.password);
     if (!token) return res.status(401).send("Senha ou email incorretos!");
-    return res.status(200).send(user);
+    return res.status(200).send({ token });
   } catch (e) {
     return res.status(500).send(e.message);
   }
