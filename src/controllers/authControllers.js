@@ -7,7 +7,7 @@ export async function registerController(req, res) {
     const user = req.body;
     user.password = bcrypt.hashSync(user.password, 10);
     await insertNewUser(user.name, user.email, user.password, user.profilePic);
-    const token = createToken(user, req.body.password);
+    const token = await createToken(user, req.body.password);
     if (!token) return res.status(401).send("Senha ou email incorretos!");
     return res.status(201).send({ token });
   } catch (e) {
@@ -20,7 +20,7 @@ export async function loginController(req, res) {
   const user = res.locals.user;
 
   try {
-    const token = createToken(user, requisite.password);
+    const token = await createToken(user, requisite.password);
     if (!token) return res.status(401).send("Senha ou email incorretos!");
     return res.status(200).send({ token });
   } catch (e) {
