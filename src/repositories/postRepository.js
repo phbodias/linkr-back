@@ -46,7 +46,9 @@ export async function getAllPosts(){
         LEFT JOIN users ON users.id=posts."userId"
         LEFT JOIN "hashtagPosts" ON posts.id="hashtagPosts"."postId"
         LEFT JOIN "hashtags" ON hashtags.id="hashtagPosts"."hashtagId"
-        LEFT JOIN likes ON likes."postId"=posts.id`
+        LEFT JOIN likes ON likes."postId"=posts.id
+        ORDER BY posts."createdAt" DESC
+        LIMIT 20`
     );
 }
 
@@ -62,7 +64,9 @@ export async function getPostsByUserId (userId) {
         LEFT JOIN "hashtagPosts" ON posts.id="hashtagPosts"."postId"
         LEFT JOIN "hashtags" ON hashtags.id="hashtagPosts"."hashtagId"
         LEFT JOIN likes ON likes."postId"=posts.id 
-        WHERE posts."userId"=$1`,
+        WHERE posts."userId"=$1
+        ORDER BY posts."createdAt" DESC
+        LIMIT 20`,
         [userId]
     )
 }
