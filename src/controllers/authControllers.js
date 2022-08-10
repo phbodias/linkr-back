@@ -9,7 +9,7 @@ export async function registerController(req, res) {
     await insertNewUser(user.name, user.email, user.password, user.profilePic);
     const userCreated = await verifyUserExistent(user.email);
     const token = await createToken(userCreated.rows[0], req.body.password);
-    if (!token) return res.status(401).send(user, req.body.password);
+    if (!token) return res.status(401).send(userCreated);
     return res.status(201).send({ token });
   } catch (e) {
     return res.status(500).send(e.message);
