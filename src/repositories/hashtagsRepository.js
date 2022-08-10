@@ -17,6 +17,16 @@ export async function selectHashtags(item){
     return existingHashtag;
 }
 
+export async function getHashtagByPostId(postId){
+    return await connection.query(
+        `SELECT hashtags.text 
+        FROM "hashtagPosts" 
+        JOIN hashtags ON hashtags.id="hashtagPosts"."hashtagId" 
+        WHERE "hashtagPosts"."postId"=$1`,
+        [postId]
+        );
+}
+
 export async function selectAllHashtags(){
     const {rows : hashtags} = await connection.query(`
     SELECT text 
@@ -35,6 +45,13 @@ export async function insertHashtagsPosts(postId, hashtagId){
     return rowCount;
 }
 
+export async function deleteHashtagLink(postId){
+    return await connection.query(
+        'DELETE FROM hashtagPosts WHERE "postId"=$1',
+        [postId]
+    )
+}
+
 export async function selectPostsByHashtag(hashtag){
     // const {rows:hashtags} = await connection.query(`
     //     SELECT 
@@ -46,4 +63,6 @@ export const hashtagsRepository = {
     selectHashtags,
     insertHashtagsPosts,
     selectAllHashtags,
+    getHashtagByPostId,
+    deleteHashtagLink
 }
