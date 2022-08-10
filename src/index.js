@@ -1,11 +1,11 @@
-import express from 'express';
+import express, {json} from 'express';
 import cors from 'cors';
 import './application/setup.js';
 import routers from './routers/index.js';
 
 const app = express();
 
-app.use([express.json,cors(),routers]);
+app.use([json(),cors(),routers]);
 
 const PORT = process.env.PORT || 4001;
 

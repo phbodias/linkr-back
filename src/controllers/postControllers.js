@@ -4,18 +4,27 @@ import {
     getAllPosts
  } from "../repositories/postRepository.js";
 
-export async function createPost (req,res) {
+ import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
+
+export async function createPost (_req,res) {
     const authUser = res.locals.authUser
+    const {body}=res.locals;
+    const {hashtagsId} = res.locals;
     try {
-        await insertPost(req.body.url,req.body.comment, authUser.id);
-        /*await insertHashtags(req.body.hashtags);
-        await insertPostHashtags(req.body.text);*/
-        res.sendStatus(201);
+        const {rows:postInserted} = await insertPost(body.url, body.comment, authUser.id);
+        const postId = postInserted[0].id;
+        for (const id of hashtagsId){
+            const rowCount = await hashtagsRepository.insertHashtagsPosts(postId,id);
+            if(rowCount===0) return res.status(500).send("Something went wrong when adding new values to hashtagsPosts table");
+        }
+        return res.sendStatus(201);
     } catch (error) {
         console.log(error);
-        res.sendStatus(500);
+        return res.sendStatus(500);
     }
 }
+
+
 
 export async function listUserPosts (_,res) {
     const authUser = res.locals.authUser

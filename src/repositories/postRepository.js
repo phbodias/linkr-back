@@ -2,7 +2,7 @@ import connection from '../dbStrategy/database.js'
 
 export async function insertPost(url,comment,userId){
     return await connection.query(
-        'INSERT INTO posts (url,comment,"userId") VALUES ($1,$2,$3)',
+        'INSERT INTO posts (url,comment,"userId") VALUES ($1,$2,$3) RETURNING id',
         [url,comment,userId]
         );
 }

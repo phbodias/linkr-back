@@ -1,5 +1,6 @@
 import { Router } from "express";
 import validateSchemas from "../middlewares/validateSchemas.js";
+import { createHashtags } from "../middlewares/hashtagsMiddlewares.js";
 import postSchema from "../schemas/postSchema.js";
 import {
     createPost,
@@ -12,10 +13,10 @@ import tokenVerify from "../middlewares/tokenVerify.js";
 
 const router = Router();
 
-router.post("/posts", validateSchemas(postSchema), tokenVerify, createPost)
-router.get("/posts", tokenVerify, listAllPosts)
-router.get("/timeline", tokenVerify, listUserPosts)
-router.put("/posts/:id", tokenVerify, editPost)
-router.delete("/posts/:id", tokenVerify, deletePost)
+router.post("/posts", tokenVerify, validateSchemas(postSchema), createHashtags ,createPost);
+router.get("/posts", tokenVerify, listAllPosts);
+router.get("/timeline", tokenVerify, listUserPosts);
+router.put("/posts/:id", tokenVerify, editPost);
+router.delete("/posts/:id", tokenVerify, deletePost);
 
-export default router
+export default router;
