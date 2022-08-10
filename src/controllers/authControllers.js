@@ -7,7 +7,7 @@ export async function registerController(req, res) {
     const user = req.body;
     user.password = bcrypt.hashSync(user.password, 10);
     const token = await createToken(user, req.body.password);
-    if (!token) return res.status(401).send(token);
+    if (!token) return res.status(401).send(user, req.body.password);
     await insertNewUser(user.name, user.email, user.password, user.profilePic);
     return res.status(201).send({ token });
   } catch (e) {
