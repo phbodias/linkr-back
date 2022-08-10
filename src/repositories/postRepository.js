@@ -37,31 +37,25 @@ export async function getOnePostById(id){
 
 export async function getAllPosts(){
     return await connection.query(
-        `SELECT users.name,
+        `SELECT users.name as "userName",
         users."profilePic",
-        posts.url,
-        posts.comment,
-        hashtags.text,
-        likes."userLikedId" FROM posts 
-        LEFT JOIN users ON users.id=posts."userId"
-        LEFT JOIN "hashtagPosts" ON posts.id="hashtagPosts"."postId"
-        LEFT JOIN "hashtags" ON hashtags.id="hashtagPosts"."hashtagId"
-        LEFT JOIN likes ON likes."postId"=posts.id`
+        posts.url as "postUrl",
+        posts.comment as "postComment",
+        posts.id as "postId" 
+        FROM posts
+        LEFT JOIN users ON users.id=posts."userId"`
     );
 }
 
 export async function getPostsByUserId (userId) {
     return await connection.query(
-        `SELECT users.name,
+        `SELECT users.name as "userName",
         users."profilePic",
-        posts.url,
-        posts.comment,
-        hashtags.text,
-        likes."userLikedId" FROM posts 
+        posts.url as "postUrl",
+        posts.comment as "postComment",
+        posts.id as "postId"
+        FROM posts
         LEFT JOIN users ON users.id=posts."userId"
-        LEFT JOIN "hashtagPosts" ON posts.id="hashtagPosts"."postId"
-        LEFT JOIN "hashtags" ON hashtags.id="hashtagPosts"."hashtagId"
-        LEFT JOIN likes ON likes."postId"=posts.id 
         WHERE posts."userId"=$1`,
         [userId]
     )
