@@ -22,7 +22,7 @@ export async function loginController(req, res) {
   try {
     const token = await createToken(user, requisite.password);
     if (!token) return res.status(401).send("Senha ou email incorretos!");
-    return res.status(200).send({ token });
+    return res.status(200).send(user);
   } catch (e) {
     return res.status(500).send(e.message);
   }
