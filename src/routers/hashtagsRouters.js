@@ -5,6 +5,6 @@ import { getHashtags, getPostsByHashtag } from "../controllers/hashtagsControlle
 const router = Router();
 
 router.get('/hashtags', tokenVerify, getHashtags);
-//router.get('/hashtags/:hashtag', tokenVerify, getPostsByHashtag)
+router.get('/hashtags/:hashtag', tokenVerify, getPostsByHashtag);
 
 export default router;
