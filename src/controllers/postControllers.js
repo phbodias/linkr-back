@@ -1,38 +1,33 @@
 import urlMetadata from 'url-metadata';
 import {
     insertPost,
-    insertPostHashtags,
     getPostsByUserId,
     getAllPosts,
-    getOnePost,
     getOnePostById,
     verifyPostHashtags,
-    deleteOnePost,
-    deleteHashtagLink,
-    deleteLikeLink
+    deleteOnePost
 } from "../repositories/postRepository.js";
 
- import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
-
+import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
 import {
-    getHashtagByPostId,
-    getHashtagByText,
-    insertHashtag
-} from "../repositories/hashtagRepository.js";
-import { getLikeByPostId } from "../repositories/likesRepository.js";
+    getLikeByPostId,
+    deleteLikeLink
+} from "../repositories/likesRepository.js";
 
 
 
-export async function createPost(req, res) {
-    const authUser = res.locals.authUser
-    const {body}=res.locals;
-    const {hashtagsId} = res.locals;
+export async function createPost(_, res) {
+    const userId = res.locals.userId
+    const { body } = res.locals;
+    const { hashtagsId } = res.locals;
     try {
-        const {rows:postInserted} = await insertPost(body.url, body.comment, authUser.id);
+        const { rows: postInserted } = await insertPost(body.url, body.comment, userId);
         const postId = postInserted[0].id;
-        for (const id of hashtagsId){
-            const rowCount = await hashtagsRepository.insertHashtagsPosts(postId,id);
-            if(rowCount===0) return res.status(500).send("Something went wrong when adding new values to hashtagsPosts table");
+        if (hashtagsId) {
+            for (const id of hashtagsId) {
+                const rowCount = await hashtagsRepository.insertHashtagsPosts(postId, id);
+                if (rowCount === 0) return res.status(500).send("Something went wrong when adding new values to hashtagsPosts table");
+            }
         }
         return res.sendStatus(201);
     } catch (error) {
@@ -42,10 +37,10 @@ export async function createPost(req, res) {
 }
 
 export async function listUserPosts(_, res) {
-    const authUser = res.locals.authUser
+    const userId = res.locals.userId
     try {
-        const posts = await getPostsByUserId(authUser.id);
-        const formattedPosts = formatPost(posts)            
+        const posts = await getPostsByUserId(userId);
+        const formattedPosts = await formatPost(posts)
         res.status(200).send(formattedPosts)
     } catch (error) {
         console.log(error);
@@ -56,7 +51,7 @@ export async function listUserPosts(_, res) {
 export async function listAllPosts(_, res) {
     try {
         const posts = await getAllPosts();
-        const formattedPosts = formatPost(posts)
+        const formattedPosts = await formatPost(posts.rows)
         res.status(200).send(formattedPosts)
     } catch (error) {
         console.log(error);
@@ -65,23 +60,23 @@ export async function listAllPosts(_, res) {
 }
 
 export async function editPost(req, res) {
-    const authUser = res.locals.authUser
+    const userId = res.locals.userId
     const postId = req.params.id
     try {
         const foundPost = await getOnePostById(postId);
-        if (foundPost.rows[0].userId === authUser.id) {
+        if (foundPost.rows[0].userId === userId) {
             await updatePost(req.body.url, req.body.comment, postId);
             if (req.body.hashtags) {
                 req.body.hashtags.map(async (h) => {
-                    hashtagId = await getHashtagByText(h);
+                    hashtagId = await hashtagsRepository.selectHashtags(h);
                     if (hashtagId.rows.length === 0) {
-                        await insertHashtag(h);
-                        hashtagId = await getHashtagByText(h);
-                        await insertPostHashtags(postId, hashtagId.rows[0].id);
+                        await hashtagsRepository.insertHashtags(h);
+                        hashtagId = await hashtagsRepository.selectHashtags(h);
+                        await hashtagsRepository.insertHashtagsPosts(postId, hashtagId.rows[0].id);
                     } else {
                         const foundLink = await verifyPostHashtags(postId, hashtagId.rows[0].id);
                         if (foundLink.rows.length === 0) {
-                            await insertPostHashtags(postId, hashtagId.rows[0].id);
+                            await hashtagsRepository.insertHashtagsPosts(postId, hashtagId.rows[0].id);
                         }
                     }
                 });
@@ -97,13 +92,13 @@ export async function editPost(req, res) {
 }
 
 export async function deletePost(req, res) {
-    const authUser = res.locals.authUser
+    const userId = res.locals.userId
     const postId = req.params.id
     try {
         const foundPost = await getOnePostById(postId);
-        if (foundPost.rows[0].userId === authUser.id) {
+        if (foundPost.rows[0].userId === userId) {
             await deleteOnePost(postId);
-            await deleteHashtagLink(postId);
+            await hashtagsRepository.deleteHashtagLink(postId);
             await deleteLikeLink(postId);
         } else {
             return res.sendStatus(401);
@@ -115,34 +110,45 @@ export async function deletePost(req, res) {
 }
 
 
-function formatPost (posts) {
+async function formatPost(posts) {
     let hashtags
     let likes
     let urlInfo
-    const formattedPosts = posts.rows.map(async (p) => {
-        hashtags = await getHashtagByPostId(p.postId)
-        likes = await getLikeByPostId(p.postId)
-        urlInfo = urlMetadata(p.url).then(
-        function (metadata) {
-            return ({
-                title:metadata.title,
-                description:metadata.description,
-                url:metadata.url,
-                image:metadata.image
-            })
-        },
-        function (error) {
-            console.log(error)
-            return ({})
-        })
-        return ({
-            userName: p.userName,
-            profilePic: p.profilePic,
+    let formattedPosts = []
+    for(let i=0; i<posts.length; i++) {
+        hashtags = await hashtagsRepository.getHashtagByPostId(posts[i].postId);
+        likes = await getLikeByPostId(posts[i].postId);
+        if (posts[i].postUrl) {
+            urlInfo = await urlMetadata(posts[i].postUrl).then(
+                function (metadata) {
+                    return ({
+                        title: metadata.title,
+                        description: metadata.description,
+                        url: metadata.url,
+                        image: metadata.image
+                    })
+                },
+                function (error) {
+                    console.log(error)
+                    return ({})
+                })
+        } else {
+            urlInfo = {
+                title: "",
+                description: "",
+                url: "",
+                image: ""
+            }
+        }
+        
+        formattedPosts.push({
+            userName: posts[i].userName,
+            profilePic: posts[i].profilePic,
             postUrl: urlInfo,
-            postComment: p.postComment,
+            postComment: posts[i].postComment,
             hashtags: hashtags.rows,
             likes: likes.rows
         })
-    })
+    }
     return formattedPosts
 }

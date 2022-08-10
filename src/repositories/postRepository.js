@@ -7,13 +7,6 @@ export async function insertPost(url,comment,userId){
         );
 }
 
-export async function insertPostHashtags(postId,hashtagId){
-    return await connection.query(
-        'INSERT INTO hashtagPosts ("postId","hashtagId") VALUES ($1,$2)',
-        [postId,hashtagId]
-        );
-}
-
 export async function verifyPostHashtags(postId,hashtagId){
     return await connection.query(
         'SELECT * FROM hashtagPosts WHERE "postId"=$1, "hastagId"=$2',
@@ -79,16 +72,3 @@ export async function deleteOnePost(id){
     )
 }
 
-export async function deleteHashtagLink(id){
-    return await connection.query(
-        'DELETE FROM hashtagPosts WHERE "postId"=$1',
-        [id]
-    )
-}
-
-export async function deleteLikeLink(id){
-    return await connection.query(
-        'DELETE FROM likes WHERE "postId"=$1',
-        [id]
-    )
-}
