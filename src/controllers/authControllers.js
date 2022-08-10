@@ -5,9 +5,9 @@ import { insertNewUser } from "../repositories/authRepository.js";
 export async function registerController(req, res) {
   try {
     const user = req.body;
-    user.password = bcrypt.hashSync(user.password, 10);
-    await insertNewUser(user.name, user.email, user.password, user.profilePic);
-    const token = await createToken(user, req.body.password);
+    const password = bcrypt.hashSync(user.password, 10);
+    await insertNewUser(user.name, user.email, password, user.profilePic);
+    const token = await createToken(user, user.password);
     if (!token) return res.status(401).send("Senha ou email incorretos!");
     return res.status(201).send({ token });
   } catch (e) {
