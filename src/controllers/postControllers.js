@@ -2,7 +2,6 @@ import {
     insertPost,
     getAllPosts,
     getOnePostById,
-    verifyPostHashtags,
     updatePost,
     deleteOnePost
 } from "../repositories/postRepository.js";
@@ -48,24 +47,17 @@ export async function listAllPosts(_, res) {
 export async function editPost(req, res) {
     const userId = res.locals.userId
     const postId = req.params.id
+    const { hashtagsId } = res.locals;
     try {
         const foundPost = await getOnePostById(postId);
         if (foundPost.rows[0].userId === userId) {
-            await updatePost(req.body.url, req.body.comment, postId);
-            if (req.body.hashtags) {
-                req.body.hashtags.map(async (h) => {
-                    hashtagId = await hashtagsRepository.selectHashtags(h);
-                    if (hashtagId.rows.length === 0) {
-                        await hashtagsRepository.insertHashtags(h);
-                        hashtagId = await hashtagsRepository.selectHashtags(h);
-                        await hashtagsRepository.insertHashtagsPosts(postId, hashtagId.rows[0].id);
-                    } else {
-                        const foundLink = await verifyPostHashtags(postId, hashtagId.rows[0].id);
-                        if (foundLink.rows.length === 0) {
-                            await hashtagsRepository.insertHashtagsPosts(postId, hashtagId.rows[0].id);
-                        }
-                    }
-                });
+            await updatePost(req.body.comment, postId);
+            if (hashtagsId) {
+                for (const id of hashtagsId) {
+                    await hashtagsRepository.deleteHashtagLink(postId);
+                    const rowCount = await hashtagsRepository.insertHashtagsPosts(postId, id);
+                    if (rowCount === 0) return res.status(500).send("Something went wrong when adding new values to hashtagsPosts table");
+                }
             }
             return res.sendStatus(200);
         } else {
@@ -82,16 +74,16 @@ export async function deletePost(req, res) {
     const postId = req.params.id
     try {
         const foundPost = await getOnePostById(postId);
-        if(foundPost.rows.length===0){
+        if (foundPost.rows.length === 0) {
             return res.sendStatus(404)
         }
         if (foundPost.rows[0].userId !== userId) {
             return res.sendStatus(401);
         }
-            await hashtagsRepository.deleteHashtagLink(postId);
-            await deleteLikeLink(postId);
-            await deleteOnePost(postId);
-            res.sendStatus(204)
+        await hashtagsRepository.deleteHashtagLink(postId);
+        await deleteLikeLink(postId);
+        await deleteOnePost(postId);
+        res.sendStatus(204)
     } catch (error) {
         console.log(error);
         res.sendStatus(500);
