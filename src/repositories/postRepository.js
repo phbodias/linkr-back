@@ -13,13 +13,6 @@ export async function insertPost(urlData, comment, userId) {
     );
 }
 
-export async function verifyPostHashtags(postId, hashtagId) {
-    return await connection.query(
-        'SELECT * FROM hashtagPosts WHERE "postId"=$1, "hastagId"=$2',
-        [postId, hashtagId]
-    );
-}
-
 export async function getOnePostById(id) {
     return await connection.query(
         'SELECT * FROM posts WHERE id=$1',
@@ -64,10 +57,10 @@ export async function getAllPosts() {
     }
 }
 
-export async function updatePost(url, comment, id) {
+export async function updatePost(comment, id) {
     return await connection.query(
-        'UPDATE posts SET url=$1,comment=$2 WHERE id=$3',
-        [url, comment, id]
+        'UPDATE posts SET comment=$1 WHERE id=$2',
+        [comment, id]
     )
 }
 

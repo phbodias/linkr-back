@@ -51,6 +51,13 @@ export async function insertHashtagsPosts(postId, hashtagId) {
     return rowCount;
 }
 
+export async function verifyPostHashtags(postId, hashtagId) {
+    return await connection.query(
+        'SELECT * FROM "hashtagPosts" WHERE "postId"=$1 AND "hashtagId"=$2',
+        [postId, hashtagId]
+    );
+}
+
 export async function deleteHashtagLink(postId) {
     return await connection.query(
         'DELETE FROM "hashtagPosts" WHERE "postId"=$1',
@@ -116,5 +123,6 @@ export const hashtagsRepository = {
     selectAllHashtags,
     selectPostsByHashtag,
     getHashtagByPostId,
-    deleteHashtagLink
+    deleteHashtagLink,
+    verifyPostHashtags
 }
