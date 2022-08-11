@@ -1,4 +1,4 @@
-import { searchUserByName } from "../repositories/usersRepository.js";
+import { searchUserByName , searchUserById} from "../repositories/usersRepository.js";
 
 
 export async function userByName(req, res){
@@ -11,7 +11,22 @@ export async function userByName(req, res){
     }
     catch(error){
         console.log(error)
+        res.status(500).send("catch error")
     }
 
     
+}
+
+export async function userById(req, res){
+    const {id} = req.params
+
+    try{
+        const {rows:user} = await searchUserById(id)
+        res.status(200).send(user)
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).send('catch error')
+    }
+
 }

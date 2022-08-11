@@ -9,3 +9,12 @@ export async function searchUserByName(name){
          [name]);
 
 }
+
+export async function searchUserById(id){
+
+        return await connection.query(
+        `SELECT * FROM posts 
+         WHERE posts."userId" = $1`, 
+         [id]);
+
+}
