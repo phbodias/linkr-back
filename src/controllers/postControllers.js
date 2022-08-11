@@ -5,6 +5,7 @@ import {
     getAllPosts,
     getOnePostById,
     verifyPostHashtags,
+    updatePost,
     deleteOnePost
 } from "../repositories/postRepository.js";
 
@@ -96,13 +97,16 @@ export async function deletePost(req, res) {
     const postId = req.params.id
     try {
         const foundPost = await getOnePostById(postId);
-        if (foundPost.rows[0].userId === userId) {
+        if(foundPost.rows.length===0){
+            return res.sendStatus(404)
+        }
+        if (foundPost.rows[0].userId !== userId) {
+            return res.sendStatus(401);
+        }
             await deleteOnePost(postId);
             await hashtagsRepository.deleteHashtagLink(postId);
             await deleteLikeLink(postId);
-        } else {
-            return res.sendStatus(401);
-        }
+            res.sendStatus(204)
     } catch (error) {
         console.log(error);
         res.sendStatus(500);

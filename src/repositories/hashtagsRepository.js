@@ -54,7 +54,7 @@ export async function insertHashtagsPosts(postId, hashtagId){
 
 export async function deleteHashtagLink(postId){
     return await connection.query(
-        'DELETE FROM hashtagPosts WHERE "postId"=$1',
+        'DELETE FROM "hashtagPosts" WHERE "postId"=$1',
         [postId]
     )
 }

@@ -1,49 +1,54 @@
 import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
 
-export async function createHashtags(_req,res,next){
-    const {body}=res.locals;
-    const {comment} = body;
-    
-    if(!comment) return next();
-        
-    body.hashtags=getHashtagsFromComment(comment,next);
+export async function createHashtags(_req, res, next) {
+    const { body } = res.locals;
+    const { comment } = body;
 
-    const arrayIdsHashtags=[];
+    if (!comment) return next();
 
-    try{
-        for (const hash of body.hashtags){
-            const hashtagExist = await existHashtag(hash);
-            if(hashtagExist.length===0){
-                const hashtagId = await hashtagsRepository.insertHashtags(hash);
-                if(!hashtagId) return res.status(500).send("Something went wrong when inserting a new hastag");
-                arrayIdsHashtags.push(hashtagId);
-            }else{
-                arrayIdsHashtags.push(hashtagExist[0].id);
+    body.hashtags = getHashtagsFromComment(comment);
+
+    if (body.hashtags.length === 0) {
+        return next()
+    } else {
+        const arrayIdsHashtags = [];
+
+        try {
+            for (const hash of body.hashtags) {
+                const hashtagExist = await existHashtag(hash);
+                if (hashtagExist.length === 0) {
+                    const hashtagId = await hashtagsRepository.insertHashtags(hash);
+                    if (!hashtagId) return res.status(500).send("Something went wrong when inserting a new hastag");
+                    arrayIdsHashtags.push(hashtagId);
+                } else {
+                    arrayIdsHashtags.push(hashtagExist[0].id);
+                }
             }
+            res.locals.body = body;
+            res.locals.hashtagsId = arrayIdsHashtags;
+            next();
+        } catch (err) {
+            console.log(err);
+            return res.sendStatus(500);
         }
-        res.locals.body=body;
-        res.locals.hashtagsId = arrayIdsHashtags;
-        next();
-    }catch(err){
-        console.log(err);
-        return res.sendStatus(500);
-    }    
+    }
+
 
 }
 
-function getHashtagsFromComment(comment,next){
-    const hashtagsArray=comment.match(/#[A-z]{1,}(?=\W|$)/g);
-        
-    if(hashtagsArray.length===0){ 
-        return next();
+function getHashtagsFromComment(comment) {
+    const hashtagsArray = comment.match(/#[A-z]{1,}(?=\W|$)/g);
+
+    if (!hashtagsArray || hashtagsArray.length === 0) {
+        return [];
     }
-    
-    return hashtagsArray.map(hashtag =>{
-        return hashtag.replace('#','').trim();
+
+    return hashtagsArray.map(hashtag => {
+        return hashtag.replace('#', '').trim();
     });
 }
 
-async function existHashtag(hashtag){
+async function existHashtag(hashtag) {
     return await hashtagsRepository.selectHashtags(hashtag);
 }
 
