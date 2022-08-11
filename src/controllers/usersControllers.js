@@ -1,5 +1,5 @@
 import { searchUserByName , searchUserById} from "../repositories/usersRepository.js";
-import {getPostsByUserId} from "../repositories/postRepository.js"
+import {getPostsByUserId} from "../repositories/usersRepository.js"
 
 export async function userByName(req, res){
     
@@ -35,7 +35,7 @@ export async function getPostsUser(req, res){
     const {id}=req.params
 
     try{
-        const {rows:posts} = await getPostsByUserId(id)
+        const posts = await getPostsByUserId(id)
         res.status(200).send(posts)
     }
     catch(error){

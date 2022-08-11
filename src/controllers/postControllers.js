@@ -1,7 +1,5 @@
-import urlMetadata from 'url-metadata';
 import {
     insertPost,
-    getPostsByUserId,
     getAllPosts,
     getOnePostById,
     verifyPostHashtags,
@@ -9,9 +7,8 @@ import {
     deleteOnePost
 } from "../repositories/postRepository.js";
 
-import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
+import { formatedPosts, hashtagsRepository } from "../repositories/hashtagsRepository.js";
 import {
-    getLikeByPostId,
     deleteLikeLink
 } from "../repositories/likesRepository.js";
 
@@ -37,22 +34,11 @@ export async function createPost(_, res) {
     }
 }
 
-export async function listUserPosts(_, res) {
-    const userId = res.locals.userId
-    try {
-        const posts = await getPostsByUserId(userId);
-        const formattedPosts = await formatPost(posts)
-        res.status(200).send(formattedPosts)
-    } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-    }
-}
-
 export async function listAllPosts(_, res) {
     try {
         const posts = await getAllPosts();
-        const formattedPosts = await formatPost(posts.rows)
+        console.log(posts)
+        const formattedPosts = await formatedPosts(posts)
         res.status(200).send(formattedPosts)
     } catch (error) {
         console.log(error);
@@ -111,48 +97,4 @@ export async function deletePost(req, res) {
         console.log(error);
         res.sendStatus(500);
     }
-}
-
-
-async function formatPost(posts) {
-    let hashtags
-    let likes
-    let urlInfo
-    let formattedPosts = []
-    for(let i=0; i<posts.length; i++) {
-        hashtags = await hashtagsRepository.getHashtagByPostId(posts[i].postId);
-        likes = await getLikeByPostId(posts[i].postId);
-        if (posts[i].postUrl) {
-            urlInfo = await urlMetadata(posts[i].postUrl).then(
-                function (metadata) {
-                    return ({
-                        title: metadata.title,
-                        description: metadata.description,
-                        url: metadata.url,
-                        image: metadata.image
-                    })
-                },
-                function (error) {
-                    console.log(error)
-                    return ({})
-                })
-        } else {
-            urlInfo = {
-                title: "",
-                description: "",
-                url: "",
-                image: ""
-            }
-        }
-        
-        formattedPosts.push({
-            userName: posts[i].userName,
-            profilePic: posts[i].profilePic,
-            postUrl: urlInfo,
-            postComment: posts[i].postComment,
-            hashtags: hashtags.rows,
-            likes: likes.rows
-        })
-    }
-    return formattedPosts
 }

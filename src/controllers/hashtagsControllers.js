@@ -19,7 +19,7 @@ export async function getPostsByHashtag (req,res){
         const existHashtag = await hashtagsRepository.selectHashtags(hashtagText);
         if(existHashtag.length===0) return res.status(422).send('Hashtag invalid!');
         const posts = await hashtagsRepository.selectPostsByHashtag(hashtagText);
-        if(!posts) return res.sendStatus(204);
+        if(!posts) return res.sendStatus(404);
         return res.status(200).send(posts);
            
     }catch(err){
