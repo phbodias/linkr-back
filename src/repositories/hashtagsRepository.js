@@ -1,4 +1,3 @@
-import urlMetadata from 'url-metadata';
 import connection from "../dbStrategy/database.js"
 import {getLikeByPostId} from "./likesRepository.js"
 
@@ -58,32 +57,36 @@ export async function deleteHashtagLink(postId){
         [postId]
     )
 }
-
 export async function selectPostsByHashtag(hashtag){
     try{
         
         const {rows: postsRaw} = await connection.query(`
-            SELECT JSON_AGG(item) AS posts
-            FROM (
-            SELECT JSON_BUILD_OBJECT(
-            'id', u.id,
-            'name', u.name,
-            'picture', u."profilePic"
-            ) AS "userOwner", 
-            p.comment,
-            p.url,
-            p.id as "postId"
-            FROM posts p 
-            JOIN users u ON u.id = p."userId" 
-            JOIN "hashtagPosts" hp ON hp."postId" = p.id
-            JOIN hashtags h ON h.id = hp."hashtagId"
-            WHERE h.text=$1
-            GROUP BY p.id, u.id
-            ) item `,[hashtag]
+        SELECT JSON_AGG(item) AS posts
+        FROM (
+        SELECT JSON_BUILD_OBJECT(
+        'id', u.id,
+        'name', u.name,
+        'picture', u."profilePic"
+        ) AS "userOwner", 
+        p.comment,
+        JSON_BUILD_OBJECT(
+            'title', p."urlTitle",
+            'description', p."urlDescription",
+            'image', p."urlImage",
+            'url', p."urlLink"
+            ) AS "urlData",
+        p.id as "postId",
+        COUNT(l.id) as "likesCount"
+        FROM posts p 
+        LEFT JOIN users u ON u.id = p."userId"
+        LEFT JOIN "hashtagPosts" hp ON hp."postId" = p.id
+        LEFT JOIN hashtags h ON h.id = hp."hashtagId"
+        LEFT JOIN likes l ON l."postId"=p.id
+        WHERE h.text=$1
+        GROUP BY p.id, u.id
+        ) item `,[hashtag]
         );
         
-        
-
         return await formatedPosts(postsRaw[0].posts);
 
     }catch(err){
@@ -92,42 +95,15 @@ export async function selectPostsByHashtag(hashtag){
     }
 }
 
-async function formatedPosts(posts){
+
+export async function formatedPosts(posts){
     for (const post of posts){
         const {rows: likes} = await getLikeByPostId(post.postId);
         post.likes=likes;
-        const urlInfo = await generateUrlMetadata(post.url);
-        delete post.url
-        post.url =urlInfo;
-        delete post.postId;
     }
     return posts;
 }
 
-async function generateUrlMetadata(url){
-    if (url) {
-        return await urlMetadata(url).then(
-            function (metadata) {
-                return ({
-                    title: metadata.title,
-                    description: metadata.description,
-                    url: metadata.url,
-                    image: metadata.image
-                })
-            },
-            function (error) {
-                console.log(error)
-                return ({})
-            })
-    } else {
-        return {
-            title: "",
-            description: "",
-            url: "",
-            image: ""
-        }
-    }
-}
 
 export const hashtagsRepository = { 
     insertHashtags,
