@@ -1,5 +1,5 @@
 import { searchUserByName , searchUserById} from "../repositories/usersRepository.js";
-
+import {getPostsByUserId} from "../repositories/postRepository.js"
 
 export async function userByName(req, res){
     
@@ -29,4 +29,17 @@ export async function userById(req, res){
         res.status(500).send('catch error')
     }
 
+}
+
+export async function getPostsUser(req, res){
+    const {id}=req.params
+
+    try{
+        const {rows:posts} = await getPostsByUserId(id)
+        res.status(200).send(posts)
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).send('servidor crashou')
+    }
 }

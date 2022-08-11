@@ -13,8 +13,8 @@ export async function searchUserByName(name){
 export async function searchUserById(id){
 
         return await connection.query(
-        `SELECT * FROM posts 
-         WHERE posts."userId" = $1`, 
+        `SELECT id, name FROM users
+         WHERE id = $1`, 
          [id]);
 
 }
