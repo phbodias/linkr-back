@@ -37,7 +37,6 @@ export async function createPost(_, res) {
 export async function listAllPosts(_, res) {
     try {
         const posts = await getAllPosts();
-        console.log(posts)
         const formattedPosts = await formatedPosts(posts)
         res.status(200).send(formattedPosts)
     } catch (error) {
@@ -89,9 +88,9 @@ export async function deletePost(req, res) {
         if (foundPost.rows[0].userId !== userId) {
             return res.sendStatus(401);
         }
-            await deleteOnePost(postId);
             await hashtagsRepository.deleteHashtagLink(postId);
             await deleteLikeLink(postId);
+            await deleteOnePost(postId);
             res.sendStatus(204)
     } catch (error) {
         console.log(error);

@@ -1,36 +1,36 @@
 import connection from "../dbStrategy/database.js"
-import {getLikeByPostId} from "./likesRepository.js"
+import { getLikeByPostId } from "./likesRepository.js"
 
 
-export async function insertHashtags(item){
-    const {rows:insertedHashtag} = await connection.query(`
+export async function insertHashtags(item) {
+    const { rows: insertedHashtag } = await connection.query(`
     INSERT INTO hashtags (text) 
     VALUES($1)
     RETURNING id`, [item])
     return insertedHashtag[0].id;
 }
 
-export async function selectHashtags(item){
-    const {rows:existingHashtag} = await connection.query(`
+export async function selectHashtags(item) {
+    const { rows: existingHashtag } = await connection.query(`
     SELECT id 
     FROM hashtags
     WHERE text = $1`,
-    [item] );
+        [item]);
     return existingHashtag;
 }
 
-export async function getHashtagByPostId(postId){
+export async function getHashtagByPostId(postId) {
     return await connection.query(
         `SELECT hashtags.text 
         FROM "hashtagPosts" 
         JOIN hashtags ON hashtags.id="hashtagPosts"."hashtagId" 
         WHERE "hashtagPosts"."postId"=$1`,
         [postId]
-        );
+    );
 }
 
-export async function selectAllHashtags(){
-    const {rows : hashtags} = await connection.query(`
+export async function selectAllHashtags() {
+    const { rows: hashtags } = await connection.query(`
     SELECT h.text 
     FROM hashtags h
     JOIN "hashtagPosts" hp
@@ -40,27 +40,27 @@ export async function selectAllHashtags(){
     return hashtags;
 }
 
-export async function insertHashtagsPosts(postId, hashtagId){
-    const {rowCount} = await connection.query(`
+export async function insertHashtagsPosts(postId, hashtagId) {
+    const { rowCount } = await connection.query(`
         INSERT INTO "hashtagPosts"
         ("postId", "hashtagId")
         VALUES
         ($1,$2)`
-        ,[postId, hashtagId]
+        , [postId, hashtagId]
     );
     return rowCount;
 }
 
-export async function deleteHashtagLink(postId){
+export async function deleteHashtagLink(postId) {
     return await connection.query(
         'DELETE FROM "hashtagPosts" WHERE "postId"=$1',
         [postId]
     )
 }
-export async function selectPostsByHashtag(hashtag){
-    try{
-        
-        const {rows: postsRaw} = await connection.query(`
+export async function selectPostsByHashtag(hashtag) {
+    try {
+
+        const { rows: postsRaw } = await connection.query(`
         SELECT JSON_AGG(item) AS posts
         FROM (
         SELECT JSON_BUILD_OBJECT(
@@ -84,28 +84,32 @@ export async function selectPostsByHashtag(hashtag){
         LEFT JOIN likes l ON l."postId"=p.id
         WHERE h.text=$1
         GROUP BY p.id, u.id
-        ) item `,[hashtag]
+        ) item `, [hashtag]
         );
-        
+
         return await formatedPosts(postsRaw[0].posts);
 
-    }catch(err){
+    } catch (err) {
         console.log(err);
         return res.sendStatus(500);
     }
 }
 
 
-export async function formatedPosts(posts){
-    for (const post of posts){
-        const {rows: likes} = await getLikeByPostId(post.postId);
-        post.likes=likes;
-    }
+export async function formatedPosts(posts) {
+    if (posts) {
+        for (const post of posts) {
+            const { rows: likes } = await getLikeByPostId(post.postId);
+            post.likes = likes;
+        }
     return posts;
+    } else {
+        return [];
+    }
 }
 
 
-export const hashtagsRepository = { 
+export const hashtagsRepository = {
     insertHashtags,
     selectHashtags,
     insertHashtagsPosts,

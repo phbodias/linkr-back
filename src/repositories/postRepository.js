@@ -1,12 +1,13 @@
 import connection from '../dbStrategy/database.js'
+import urlMetadata from 'url-metadata';
 import { formatedPosts } from './hashtagsRepository.js';
 
 export async function insertPost(urlData, comment, userId) {
-    const { title, description, url, image } = generateUrlMetadata(urlData)
+    const { title, description, url, image } = await generateUrlMetadata(urlData)
 
     return await connection.query(
         `INSERT INTO posts 
-        (urlTitle,urlDescription,urlLink,urlImage,comment,"userId") 
+        ("urlTitle","urlDescription","urlLink","urlImage",comment,"userId") 
         VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
         [title, description, url, image, comment, userId]
     );
