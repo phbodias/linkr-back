@@ -5,7 +5,9 @@ export async function userByName(req, res){
     
     const {name} = req.params
 
+    console.log(name)
     try{
+       
         const {rows:users} = await searchUserByName(name)
         res.status(200).send(users)
     }
@@ -35,6 +37,14 @@ export async function getPostsUser(req, res){
     const {id}=req.params
 
     try{
+        
+        const {rows:user} = await searchUserById(id)
+        console.log(user)
+
+        if(user.length===0){
+            res.status(404).send('NOT HAVE A USER WITH THIS ID')
+        }
+
         const posts = await getPostsByUserId(id)
         res.status(200).send(posts)
     }
