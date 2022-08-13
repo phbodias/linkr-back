@@ -6,6 +6,7 @@ const router = Router()
 
 router.get("/busca/:name",tokenVerify, userByName)
 router.get("/user/:id", userById)
+router.get("/me", tokenVerify, userById)
 router.get("/posts/:id", getPostsUser)
 
 export default router

@@ -20,7 +20,7 @@ export async function userByName(req, res){
 }
 
 export async function userById(req, res){
-    const {id} = req.params
+    const {id} = req.params || res.locals.userId;
 
     try{
         const {rows:user} = await searchUserById(id)
