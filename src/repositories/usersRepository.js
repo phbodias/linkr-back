@@ -14,7 +14,7 @@ export async function searchUserByName(name) {
 export async function searchUserById(id) {
 
     return await connection.query(
-        `SELECT id, name FROM users
+        `SELECT id, name, "profilePic" FROM users
          WHERE id = $1`,
         [id]);
 
