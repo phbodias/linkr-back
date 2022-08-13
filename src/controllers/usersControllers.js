@@ -20,7 +20,7 @@ export async function userByName(req, res){
 }
 
 export async function userById(req, res){
-    const {id} = req.params || res.locals.userId;
+    const {id} = req.params;
 
     try{
         const {rows:user} = await searchUserById(id)
@@ -51,5 +51,18 @@ export async function getPostsUser(req, res){
     catch(error){
         console.log(error)
         res.status(500).send('servidor crashou')
+    }
+}
+
+export async function userLogged(req, res){
+    const userId = res.locals.userId;
+
+    try{
+        const {rows:user} = await searchUserById(id)
+        res.status(200).send(user)
+    }
+    catch(error){
+        console.log(error)
+        res.status(500).send('catch error')
     }
 }
