@@ -58,7 +58,7 @@ export async function userLogged(req, res){
     const userId = res.locals.userId;
 
     try{
-        const {rows:user} = await searchUserById(id)
+        const {rows:user} = await searchUserById(userId)
         res.status(200).send(user)
     }
     catch(error){
