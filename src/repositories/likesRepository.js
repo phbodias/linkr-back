@@ -14,6 +14,13 @@ export async function deleteLikeLink(id) {
   return await connection.query('DELETE FROM likes WHERE "postId"=$1', [id]);
 }
 
+export async function deleteLiked(userId, postId) {
+  return await connection.query(
+    'DELETE FROM likes WHERE "userLikedId"=$1 AND "postId"=$2',
+    [userId, postId]
+  );
+}
+
 export async function likesPost(userId, postId) {
   try {
     await connection.query(

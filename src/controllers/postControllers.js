@@ -10,7 +10,7 @@ import {
   formatedPosts,
   hashtagsRepository,
 } from "../repositories/hashtagsRepository.js";
-import { deleteLikeLink, likesPost } from "../repositories/likesRepository.js";
+import { deleteLiked, deleteLikeLink, likesPost } from "../repositories/likesRepository.js";
 
 export async function createPost(_, res) {
   const userId = res.locals.userId;
@@ -114,6 +114,17 @@ export async function likePost(req, res) {
   const postId = req.body.id;
   try {
     await likesPost(userId, postId);
+    return res.sendStatus(200);
+  } catch (e) {
+    return res.status(500).send(e.message);
+  }
+}
+
+export async function deleteLike(req, res) {
+  const userId = res.locals.userId;
+  const postId = req.body.id;
+  try {
+    await deleteLiked(userId, postId);
     return res.sendStatus(200);
   } catch (e) {
     return res.status(500).send(e.message);

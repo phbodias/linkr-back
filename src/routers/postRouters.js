@@ -8,7 +8,8 @@ import {
     listAllPosts,
     editPost,
     deletePost,
-    likePost
+    likePost,
+    deleteLike
 } from "../controllers/postControllers.js";
 import tokenVerify from "../middlewares/tokenVerify.js";
 
@@ -16,6 +17,7 @@ const router = Router();
 
 router.post("/posts", tokenVerify, validateSchemas(postSchema), createHashtags, createPost);
 router.post("/likes", tokenVerify, likePost);
+router.delete("/likes", tokenVerify, deleteLike);
 router.get("/posts", tokenVerify, listAllPosts);
 router.put("/posts/:id", tokenVerify, validateSchemas(postUpdateSchema), createHashtags, editPost);
 router.delete("/posts/:id", tokenVerify, deletePost);
