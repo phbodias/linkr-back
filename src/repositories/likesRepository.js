@@ -24,6 +24,6 @@ export async function likePost(userId, postId) {
         [postId, userId]
       );
     } catch (e) {
-      return res.status(500).send(e);
+      return res.status(500).send("erro no repo");
     }
   }
