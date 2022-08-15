@@ -16,3 +16,14 @@ export async function deleteLikeLink(id){
         [id]
     )
 }
+
+export async function likePost(userId, postId) {
+    try {
+      return await connection.query(
+        'INSERT INTO likes ("postId", "userLikedId") VALUES ($1, $2)',
+        [postId, userId]
+      );
+    } catch (e) {
+      return res.status(500).send(e);
+    }
+  }

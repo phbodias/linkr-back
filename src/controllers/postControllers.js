@@ -111,7 +111,7 @@ export async function deletePost(req, res) {
 
 export async function likePost(req, res) {
   const userId = res.locals.userId;
-  const postId = req.params.id;
+  const postId = req.body.id;
   try {
     await likePost(userId, postId);
   } catch (e) {

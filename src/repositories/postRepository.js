@@ -63,17 +63,6 @@ export async function deleteOnePost(id) {
   return await connection.query("DELETE FROM posts WHERE id=$1", [id]);
 }
 
-export async function likePost(userId, postId) {
-  try {
-    return await connection.query(
-      'INSERT INTO likes ("postId", "userLikedId") VALUES ($1, $2)',
-      [postId, userId]
-    );
-  } catch (e) {
-    return res.status(500).send(e);
-  }
-}
-
 async function generateUrlMetadata(url) {
   if (url) {
     return await urlMetadata(url).then(
