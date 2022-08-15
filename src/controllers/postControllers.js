@@ -114,6 +114,7 @@ export async function likePost(req, res) {
   const postId = req.body.id;
   try {
     await likePost(userId, postId);
+    return res.sendStatus(200);
   } catch (e) {
     return res.status(500).send(e.message);
   }
