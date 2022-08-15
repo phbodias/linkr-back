@@ -115,6 +115,6 @@ export async function likePost(req, res) {
   try {
     await likePost(userId, postId);
   } catch (e) {
-    return res.status(500).send(res.locals.userId);
+    return res.status(500).send(userId);
   }
 }
