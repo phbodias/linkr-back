@@ -115,6 +115,6 @@ export async function likePost(req, res) {
   try {
     await likePost(userId, postId);
   } catch (e) {
-    return res.status(500).send("erro no controller");
+    return res.status(500).send(e.message);
   }
 }
