@@ -37,7 +37,7 @@ export async function createHashtags(_req, res, next) {
 }
 
 function getHashtagsFromComment(comment) {
-    const hashtagsArray = comment.match(/#[A-z]{1,}(?=\W|$)/g);
+    const hashtagsArray = comment.match(/#[A-Z0-9-àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ]{1,}(?=\W|$)/gi);
 
     if (!hashtagsArray || hashtagsArray.length === 0) {
         return [];
