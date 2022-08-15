@@ -45,3 +45,7 @@ async function createToken(user, password) {
     return false;
   }
 }
+
+export async function tokenController(req, res){
+  return res.sendStatus(200);
+}
