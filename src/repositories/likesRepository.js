@@ -14,7 +14,7 @@ export async function deleteLikeLink(id) {
   return await connection.query('DELETE FROM likes WHERE "postId"=$1', [id]);
 }
 
-export async function likePost(userId, postId) {
+export async function likesPost(userId, postId) {
   try {
     await connection.query(
       'INSERT INTO likes ("postId", "userLikedId") VALUES ($1, $2)',
