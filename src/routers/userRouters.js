@@ -5,8 +5,8 @@ import tokenVerify from "../middlewares/tokenVerify.js";
 const router = Router()
 
 router.get("/busca/:name",tokenVerify, userByName)
-router.get("/user/:id", userById)
+router.get("/user/:id", tokenVerify, userById)
 router.get("/me", tokenVerify, userLogged)
-router.get("/posts/:id", getPostsUser)
+router.get("/posts/:id", tokenVerify, getPostsUser)
 
 export default router
