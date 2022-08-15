@@ -122,7 +122,7 @@ export async function likePost(req, res) {
 
 export async function deleteLike(req, res) {
   const userId = res.locals.userId;
-  const postId = req.body.id;
+  const postId = req.params.id;
   try {
     await deleteLiked(userId, postId);
     return res.sendStatus(200);
