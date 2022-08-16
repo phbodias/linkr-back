@@ -7,7 +7,7 @@ export async function createComment(req,res){
     const {userId} = res.locals;
     const {comment} = req.body; 
     const id = stripHtml(req.params.id)?.result.trim() || null;
-    if(!id) return res.status(422).send('Invalid postId sent!');
+    if(!id || isNaN(Number(id))) return res.status(422).send('Invalid postId sent!');
     try{
         const {rows:existUser} = await searchUserById(userId);
         if(existUser.length===0) return res.status(404).send("There isn't an user with this Id");
