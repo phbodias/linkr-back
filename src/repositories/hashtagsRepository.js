@@ -76,7 +76,7 @@ export async function selectPostsByHashtag(hashtag) {
         'name', u.name,
         'picture', u."profilePic"
         ) AS "userOwner", 
-        p.comment,
+        p.description,
         JSON_BUILD_OBJECT(
             'title', p."urlTitle",
             'description', p."urlDescription",

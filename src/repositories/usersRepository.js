@@ -32,7 +32,7 @@ export async function getPostsByUserId(userId) {
             'name', u.name,
             'picture', u."profilePic"
             ) AS "userOwner", 
-            p.comment,
+            p.description,
             JSON_BUILD_OBJECT(
                 'title', p."urlTitle",
                 'description', p."urlDescription",
