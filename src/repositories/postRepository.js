@@ -27,7 +27,7 @@ export async function getAllPosts() {
             'name', u.name,
             'picture', u."profilePic"
             ) AS "userOwner", 
-            p.comment,
+            p.description,
             JSON_BUILD_OBJECT(
                 'title', p."urlTitle",
                 'description', p."urlDescription",
@@ -61,6 +61,12 @@ export async function updatePost(comment, id) {
 
 export async function deleteOnePost(id) {
   return await connection.query("DELETE FROM posts WHERE id=$1", [id]);
+}
+
+export async function insertShared(userId,postId) {
+  return await connection.query(
+    `INSERT INTO shared ("userId","postId") VALUES ($1,$2)`, 
+    [userId,postId]);
 }
 
 async function generateUrlMetadata(url) {
