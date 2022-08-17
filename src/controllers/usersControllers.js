@@ -69,7 +69,7 @@ export async function followController(req, res) {
   const friendId = req.params.friendId;
   if (userId === friendId) return res.sendStatus(400);
   try {
-    const { rows: already } = alreadyFollow(userId, friendId);
+    const { rows: already } = await alreadyFollow(userId, friendId);
     if (already.length > 0) return res.sendStatus(400);
     await follow(userId, friendId);
     return res.sendStatus(201);
@@ -83,7 +83,7 @@ export async function unfollowController(req, res) {
   const friendId = req.params.friendId;
   if (userId === friendId) return res.sendStatus(400);
   try {
-    const { rows: already } = alreadyFollow(userId, friendId);
+    const { rows: already } = await alreadyFollow(userId, friendId);
     if (already.length === 0) return res.sendStatus(400);
     await unfollow(userId, friendId);
     return res.sendStatus(200);
