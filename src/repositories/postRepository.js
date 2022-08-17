@@ -48,7 +48,6 @@ export async function getAllPosts() {
     return await formatedPosts(postsRaw[0].posts);
   } catch (err) {
     console.log(err);
-    return res.sendStatus(500);
   }
 }
 

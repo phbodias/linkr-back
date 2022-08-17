@@ -19,7 +19,16 @@ export async function getCommentsOfPostById(id){
     return results;
 }
 
+export async function getCommentsCountOfPostById(id){
+    const {rows:results} = await connection.query(`
+    SELECT COUNT(id) AS "commentsCount"
+    FROM comments
+    WHERE "postId"=$1;`, [id]);
+    return results[0];
+}
+
 export const commentsRepository = {
     insertComments,
     getCommentsOfPostById,
+    getCommentsCountOfPostById
 }
