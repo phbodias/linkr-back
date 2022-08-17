@@ -20,7 +20,7 @@ export async function createPost(_, res) {
   try {
     const { rows: postInserted } = await insertPost(
       body.url,
-      body.comment,
+      body.description,
       userId
     );
     const postId = postInserted[0].id;
@@ -63,7 +63,7 @@ export async function editPost(req, res) {
   try {
     const foundPost = await getOnePostById(postId);
     if (foundPost.rows[0].userId === userId) {
-      await updatePost(req.body.comment, postId);
+      await updatePost(req.body.description, postId);
       if (hashtagsId) {
         for (const id of hashtagsId) {
           await hashtagsRepository.deleteHashtagLink(postId);

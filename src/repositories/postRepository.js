@@ -2,14 +2,13 @@ import connection from "../dbStrategy/database.js";
 import urlMetadata from "url-metadata";
 import { formatedPosts } from "./hashtagsRepository.js";
 
-export async function insertPost(urlData, comment, userId) {
-  const { title, description, url, image } = await generateUrlMetadata(urlData);
-
+export async function insertPost(urlData, description, userId) {
+  const { title, urlDescription, url, image } = await generateUrlMetadata(urlData);
   return await connection.query(
     `INSERT INTO posts 
-        ("urlTitle","urlDescription","urlLink","urlImage",comment,"userId") 
+        ("urlTitle","urlDescription","urlLink","urlImage",description,"userId") 
         VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-    [title, description, url, image, comment, userId]
+    [title, urlDescription, url, image, description, userId]
   );
 }
 
@@ -30,7 +29,7 @@ export async function getAllPosts() {
             p.description,
             JSON_BUILD_OBJECT(
                 'title', p."urlTitle",
-                'description', p."urlDescription",
+                'urlDescription', p."urlDescription",
                 'image', p."urlImage",
                 'url', p."urlLink"
                 ) AS "urlData",
@@ -50,13 +49,12 @@ export async function getAllPosts() {
     return await formatedPosts(postsRaw[0].posts);
   } catch (err) {
     console.log(err);
-    return res.sendStatus(500);
   }
 }
 
-export async function updatePost(comment, id) {
-  return await connection.query("UPDATE posts SET comment=$1 WHERE id=$2", [
-    comment,
+export async function updatePost(description, id) {
+  return await connection.query("UPDATE posts SET description=$1 WHERE id=$2", [
+    description,
     id,
   ]);
 }
@@ -86,7 +84,7 @@ async function generateUrlMetadata(url) {
       function (metadata) {
         return {
           title: metadata.title,
-          description: metadata.description,
+          urlDescription: metadata.description,
           url: metadata.url,
           image: metadata.image,
         };
@@ -99,7 +97,7 @@ async function generateUrlMetadata(url) {
   } else {
     return {
       title: "",
-      description: "",
+      urlDescription: "",
       url: "",
       image: "",
     };
