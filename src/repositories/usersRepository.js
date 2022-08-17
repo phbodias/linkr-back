@@ -32,7 +32,7 @@ export async function getPostsByUserId(userId) {
             'name', u.name,
             'picture', u."profilePic"
             ) AS "userOwner", 
-            p.comment,
+            p.description,
             JSON_BUILD_OBJECT(
                 'title', p."urlTitle",
                 'description', p."urlDescription",
@@ -40,10 +40,12 @@ export async function getPostsByUserId(userId) {
                 'url', p."urlLink"
                 ) AS "urlData",
             p.id as "postId",
-            COUNT(l.id) as "likesCount"
+            COUNT(l.id) as "likesCount",
+            COUNT(s.id) as "repostCount"
             FROM posts p
             LEFT JOIN users u ON u.id=p."userId"
             LEFT JOIN likes l ON l."postId"=p.id
+            LEFT JOIN shared s ON s."postId"=p.id
             WHERE p."userId"=$1
             GROUP BY p.id, u.id
             ORDER BY p."createdAt" DESC

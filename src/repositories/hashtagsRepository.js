@@ -1,5 +1,6 @@
 import connection from "../dbStrategy/database.js"
 import { getLikeByPostId } from "./likesRepository.js"
+import { getRepostsByPostId } from "./postRepository.js";
 
 
 export async function insertHashtags(item) {
@@ -75,7 +76,7 @@ export async function selectPostsByHashtag(hashtag) {
         'name', u.name,
         'picture', u."profilePic"
         ) AS "userOwner", 
-        p.comment,
+        p.description,
         JSON_BUILD_OBJECT(
             'title', p."urlTitle",
             'description', p."urlDescription",
@@ -83,12 +84,14 @@ export async function selectPostsByHashtag(hashtag) {
             'url', p."urlLink"
             ) AS "urlData",
         p.id as "postId",
-        COUNT(l.id) as "likesCount"
+        COUNT(l.id) as "likesCount",
+        COUNT(s.id) as "repostCount"
         FROM posts p 
         LEFT JOIN users u ON u.id = p."userId"
         LEFT JOIN "hashtagPosts" hp ON hp."postId" = p.id
         LEFT JOIN hashtags h ON h.id = hp."hashtagId"
         LEFT JOIN likes l ON l."postId"=p.id
+        LEFT JOIN shared s ON s."postId"=p.id
         WHERE h.text=$1
         GROUP BY p.id, u.id
         ) item `, [hashtag]
@@ -107,7 +110,9 @@ export async function formatedPosts(posts) {
     if (posts) {
         for (const post of posts) {
             const { rows: likes } = await getLikeByPostId(post.postId);
+            const { rows: reposts } = await getRepostsByPostId(post.postId);
             post.likes = likes;
+            post.reposts = reposts;
         }
     return posts;
     } else {

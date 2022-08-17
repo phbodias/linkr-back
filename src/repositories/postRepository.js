@@ -27,7 +27,7 @@ export async function getAllPosts() {
             'name', u.name,
             'picture', u."profilePic"
             ) AS "userOwner", 
-            p.comment,
+            p.description,
             JSON_BUILD_OBJECT(
                 'title', p."urlTitle",
                 'description', p."urlDescription",
@@ -35,10 +35,12 @@ export async function getAllPosts() {
                 'url', p."urlLink"
                 ) AS "urlData",
             p.id as "postId",
-            COUNT(l.id) as "likesCount"
+            COUNT(l.id) as "likesCount",
+            COUNT(s.id) as "repostCount"
             FROM posts p
             LEFT JOIN users u ON u.id=p."userId"
             LEFT JOIN likes l ON l."postId"=p.id
+            LEFT JOIN shared s ON s."postId"=p.id
             GROUP BY p.id, u.id
             ORDER BY p."createdAt" DESC
             LIMIT 20
@@ -61,6 +63,21 @@ export async function updatePost(comment, id) {
 
 export async function deleteOnePost(id) {
   return await connection.query("DELETE FROM posts WHERE id=$1", [id]);
+}
+
+export async function insertShared(userId,postId) {
+  return await connection.query(
+    `INSERT INTO shared ("userId","postId") VALUES ($1,$2)`, 
+    [userId,postId]);
+}
+export async function getRepostsByPostId(postId) {
+  return await connection.query(
+    `SELECT users.name, users.id
+        FROM shared
+        JOIN users ON users.id=shared."userId"
+        WHERE shared."postId"=$1`,
+    [postId]
+  );
 }
 
 async function generateUrlMetadata(url) {

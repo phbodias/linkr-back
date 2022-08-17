@@ -1,5 +1,6 @@
 import {
   insertPost,
+  insertShared,
   getAllPosts,
   getOnePostById,
   updatePost,
@@ -126,6 +127,17 @@ export async function deleteLike(req, res) {
   try {
     await deleteLiked(userId, postId);
     return res.sendStatus(200);
+  } catch (e) {
+    return res.status(500).send(e.message);
+  }
+}
+
+export async function createRepost(req,res){
+  const userId = res.locals.userId;
+  const postId = req.params.id;
+  try {
+    await insertShared(userId,postId);
+    return res.sendStatus(201);
   } catch (e) {
     return res.status(500).send(e.message);
   }
