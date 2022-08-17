@@ -96,7 +96,7 @@ export async function friendsController(req, res) {
   const userId = res.locals.userId;
   try {
     const { rows: friends } = await friendsFollow(userId);
-    return res.status(200).send(friends);
+    return res.status(200).send(friends.map(friend => friend.friendId));
   } catch (e) {
     return res.status(500).send(e.message);
   }
