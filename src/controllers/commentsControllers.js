@@ -28,9 +28,23 @@ export async function listCommentsOfPost(_req,res){
         if(existPost.length===0) return res.status(404).send("There is no post whith this Id");
         const comments = await commentsRepository.getCommentsOfPostById(id);
         if(!comments) return res.status(500).send("Something went wrong on getting the comments");
-        return res.status(200).send({comments, commentsCount: comments.length}); 
+        return res.status(200).send({comments}); 
     }catch(err){
         console.log(err);
         return res.status(500).send('Error on listCommentsOfPost function on commentsControllers.js file');
+    }
+}
+
+export async function countOfCommentsOfPost(_req, res){
+    const {id} = res.locals;
+    try{
+        const {rows: existPost} = await getOnePostById(id);
+        if(existPost.length===0) return res.status(404).send("There is no post whith this Id");
+        const commentsCount = await commentsRepository.getCommentsCountOfPostById(id);
+        if(!commentsCount) return res.status(500).send("Something went wrong on getting the comments");
+        return res.status(200).send(commentsCount); 
+    }catch(err){
+        console.log(err);
+        return res.status(500).send(`${err} \n Error on countOfCommentsOfPost function on commentsControllers`);
     }
 }
