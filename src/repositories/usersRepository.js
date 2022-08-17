@@ -1,31 +1,26 @@
 import connection from "../dbStrategy/database.js";
-import { formatedPosts } from './hashtagsRepository.js';
-
+import { formatedPosts } from "./hashtagsRepository.js";
 
 export async function searchUserByName(name) {
-
-    return await connection.query(
-        `SELECT * FROM users 
+  return await connection.query(
+    `SELECT * FROM users 
          WHERE users.name ILIKE $1 || '%'`,
-        [name]);
-
+    [name]
+  );
 }
 
 export async function searchUserById(id) {
-
-    return await connection.query(
-        `SELECT id, name, "profilePic" FROM users
+  return await connection.query(
+    `SELECT id, name, "profilePic" FROM users
          WHERE id = $1`,
-        [id]);
-
+    [id]
+  );
 }
 
-
 export async function getPostsByUserId(userId) {
-    try {
-
-        const { rows: postsRaw } = await connection.query(
-            `SELECT JSON_AGG(item) AS posts
+  try {
+    const { rows: postsRaw } = await connection.query(
+      `SELECT JSON_AGG(item) AS posts
             FROM (
             SELECT JSON_BUILD_OBJECT(
             'id', u.id,
@@ -51,13 +46,56 @@ export async function getPostsByUserId(userId) {
             ORDER BY p."createdAt" DESC
             LIMIT 20
             ) item `,
-            [userId]
-        );
+      [userId]
+    );
 
-        return await formatedPosts(postsRaw[0].posts);
+    return await formatedPosts(postsRaw[0].posts);
+  } catch (err) {
+    console.log(err);
+    return res.sendStatus(500);
+  }
+}
 
-    } catch (err) {
-        console.log(err);
-        return res.sendStatus(500);
+export async function follow(userId, friendId) {
+  try {
+    return await connection.query(
+      'INSERT INTO friends ("userId", "friendId") VALUES ($1, $2)',
+      [userId, friendId]
+    );
+  } catch (e) {
+    return res.status(500).send(e.message);
+  }
+}
+
+export async function alreadyFollow(userId, friendId) {
+    try {
+      return await connection.query(
+        'SELECT * FROM friends WHERE "userId"=$1 AND "friendId"=$2',
+        [userId, friendId]
+      );
+    } catch (e) {
+      return res.status(500).send(e.message);
     }
+  }
+
+export async function unfollow(userId, friendId) {
+  try {
+    return await connection.query(
+      'DELETE FROM friends WHERE "userId"=$1 AND "friendId"=$2',
+      [userId, friendId]
+    );
+  } catch (e) {
+    return res.status(500).send(e.message);
+  }
+}
+
+export async function friendsFollow(userId) {
+  try {
+    return await connection.query(
+      'SELECT "friendId" FROM "friends" WHERE "userId"=$1',
+      [userId]
+    );
+  } catch (e) {
+    return res.status(500).send(e.message);
+  }
 }
