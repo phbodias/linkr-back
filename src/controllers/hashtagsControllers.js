@@ -28,16 +28,3 @@ export async function getPostsByHashtag (req,res){
     }
    
 }
-
-// SELECT JSON_AGG(item) 
-// 	FROM (
-// 		SELECT JSON_BUILD_OBJECT(
-// 		'id', u.id,
-// 		'name', u.name,
-// 		'picture', u."profilePic"
-// 	) AS "userOwner", p.comment, p.url 
-//         FROM posts p JOIN users u ON u.id = p."userId" 
-//         JOIN "hashtagPosts" hp ON hp."postId" = p.id
-//         JOIN hashtags h ON h.id = hp."hashtagId"
-//         GROUP BY p.id
-//   ) item

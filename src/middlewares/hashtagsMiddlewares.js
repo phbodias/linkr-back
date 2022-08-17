@@ -2,14 +2,14 @@ import { hashtagsRepository } from "../repositories/hashtagsRepository.js";
 
 export async function createHashtags(_req, res, next) {
     const { body } = res.locals;
-    const { comment } = body;
+    const { description } = body;
 
-    if (!comment) return next();
+    if (!description) return next();
 
-    body.hashtags = getHashtagsFromComment(comment);
+    body.hashtags = getHashtagsFromPost(description);
 
     if (body.hashtags.length === 0) {
-        return next()
+        return next();
     } else {
         const arrayIdsHashtags = [];
 
@@ -36,8 +36,8 @@ export async function createHashtags(_req, res, next) {
 
 }
 
-function getHashtagsFromComment(comment) {
-    const hashtagsArray = comment.match(/#[A-Z0-9-àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ]{1,}(?=\W|$)/gi);
+function getHashtagsFromPost(description) {
+    const hashtagsArray = description.match(/#[A-Z0-9-àèìòùÀÈÌÒÙáéíóúýÁÉÍÓÚÝâêîôûÂÊÎÔÛãñõÃÑÕäëïöüÿÄËÏÖÜŸçÇßØøÅåÆæœ]{1,}(?=\W|$)/gi);
 
     if (!hashtagsArray || hashtagsArray.length === 0) {
         return [];

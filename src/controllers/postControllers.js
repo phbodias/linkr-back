@@ -1,5 +1,6 @@
 import {
   insertPost,
+  insertShared,
   getAllPosts,
   getOnePostById,
   updatePost,
@@ -19,7 +20,7 @@ export async function createPost(_, res) {
   try {
     const { rows: postInserted } = await insertPost(
       body.url,
-      body.comment,
+      body.description,
       userId
     );
     const postId = postInserted[0].id;
@@ -62,7 +63,7 @@ export async function editPost(req, res) {
   try {
     const foundPost = await getOnePostById(postId);
     if (foundPost.rows[0].userId === userId) {
-      await updatePost(req.body.comment, postId);
+      await updatePost(req.body.description, postId);
       if (hashtagsId) {
         for (const id of hashtagsId) {
           await hashtagsRepository.deleteHashtagLink(postId);
@@ -126,6 +127,17 @@ export async function deleteLike(req, res) {
   try {
     await deleteLiked(userId, postId);
     return res.sendStatus(200);
+  } catch (e) {
+    return res.status(500).send(e.message);
+  }
+}
+
+export async function createRepost(req,res){
+  const userId = res.locals.userId;
+  const postId = req.params.id;
+  try {
+    await insertShared(userId,postId);
+    return res.sendStatus(201);
   } catch (e) {
     return res.status(500).send(e.message);
   }
