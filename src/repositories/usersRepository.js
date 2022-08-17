@@ -35,7 +35,7 @@ export async function getPostsByUserId(userId) {
             p.description,
             JSON_BUILD_OBJECT(
                 'title', p."urlTitle",
-                'description', p."urlDescription",
+                '"urlDescription"', p."urlDescription",
                 'image', p."urlImage",
                 'url', p."urlLink"
                 ) AS "urlData",
