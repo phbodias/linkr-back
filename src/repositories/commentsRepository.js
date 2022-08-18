@@ -23,7 +23,7 @@ export async function getCommentsOfPostById(userId, postId) {
    c.text, 
    (CASE 
     WHEN c."userId"=f1."friendId" AND f1."userId"=$1 THEN 'following'
-    WHEN c."userId"=p."userId" THEN 'post!s author'
+    WHEN c."userId"=p."userId" THEN 'post''s author'
     ELSE '' 
     END
    ) as relation
