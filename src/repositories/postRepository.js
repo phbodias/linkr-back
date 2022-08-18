@@ -20,30 +20,34 @@ export async function getAllPosts() {
   try {
     const { rows: postsRaw } = await connection.query(
       `SELECT JSON_AGG(item) AS posts
-            FROM (
-            SELECT JSON_BUILD_OBJECT(
-            'id', u.id,
-            'name', u.name,
-            'picture', u."profilePic"
-            ) AS "userOwner", 
-            p.description,
-            JSON_BUILD_OBJECT(
-                'title', p."urlTitle",
-                'urlDescription', p."urlDescription",
-                'image', p."urlImage",
-                'url', p."urlLink"
-                ) AS "urlData",
-            p.id as "postId",
-            COUNT(l.id) as "likesCount",
-            COUNT(s.id) as "repostCount"
-            FROM posts p
-            LEFT JOIN users u ON u.id=p."userId"
-            LEFT JOIN likes l ON l."postId"=p.id
-            LEFT JOIN shared s ON s."postId"=p.id
-            GROUP BY p.id, u.id
-            ORDER BY p."createdAt" DESC
-            LIMIT 20
-            ) item `
+      FROM (
+      SELECT JSON_BUILD_OBJECT(
+      'id', u.id,
+      'name', u.name
+      ) AS "userOwner", 
+      p.description,
+      JSON_BUILD_OBJECT(
+          'title', p."urlTitle",
+          'urlDescription', p."urlDescription",
+          'image', p."urlImage",
+          'url', p."urlLink"
+          ) AS "urlData",
+      p.id as "postId",
+      COUNT(l.id) as "likesCount",
+      COUNT(s.id) as "repostCount",
+      f2."friendId" as "repostedBy"
+      FROM posts p
+      LEFT JOIN users u ON u.id=p."userId"
+      LEFT JOIN likes l ON l."postId"=p.id
+      LEFT JOIN shared s ON s."postId"=p.id
+      LEFT JOIN friends f1 ON f1."friendId"=p."userId"
+      LEFT JOIN friends f2 ON f2."friendId"=s."userId"
+      WHERE f1."userId"=$1 OR f2."userId"=$1 OR p."userId"=$1 OR s."userId"=$1
+      GROUP BY p.id, u.id, f2."friendId", s."createdAt"
+      ORDER BY s."createdAt" DESC,p."createdAt" DESC
+      LIMIT 20
+      ) item `,
+      [userId]
     );
 
     return await formatedPosts(postsRaw[0].posts);
@@ -63,10 +67,10 @@ export async function deleteOnePost(id) {
   return await connection.query("DELETE FROM posts WHERE id=$1", [id]);
 }
 
-export async function insertShared(userId,postId) {
+export async function insertShared(userId, postId) {
   return await connection.query(
-    `INSERT INTO shared ("userId","postId") VALUES ($1,$2)`, 
-    [userId,postId]);
+    `INSERT INTO shared ("userId","postId") VALUES ($1,$2)`,
+    [userId, postId]);
 }
 export async function getRepostsByPostId(postId) {
   return await connection.query(
