@@ -16,7 +16,7 @@ export async function getOnePostById(id) {
   return await connection.query("SELECT * FROM posts WHERE id=$1", [id]);
 }
 
-export async function getAllPosts() {
+export async function getAllPosts(userId) {
   try {
     const { rows: postsRaw } = await connection.query(
       `SELECT JSON_AGG(item) AS posts

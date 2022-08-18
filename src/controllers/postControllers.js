@@ -46,8 +46,9 @@ export async function createPost(_, res) {
 }
 
 export async function listAllPosts(_, res) {
+  const userId = res.locals.userId;
   try {
-    const posts = await getAllPosts();
+    const posts = await getAllPosts(userId);
     const formattedPosts = await formatedPosts(posts);
     res.status(200).send(formattedPosts);
   } catch (error) {

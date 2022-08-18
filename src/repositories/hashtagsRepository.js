@@ -110,9 +110,7 @@ export async function formatedPosts(posts) {
     if (posts) {
         for (const post of posts) {
             const { rows: likes } = await getLikeByPostId(post.postId);
-            const { rows: reposts } = await getRepostsByPostId(post.postId);
             post.likes = likes;
-            post.reposts = reposts;
         }
     return posts;
     } else {
