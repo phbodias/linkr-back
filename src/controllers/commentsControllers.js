@@ -22,11 +22,12 @@ export async function createComment(req,res){
 }
 
 export async function listCommentsOfPost(_req,res){
+    const {userId} = res.locals;
     const {id} = res.locals;
     try{
         const {rows: existPost} = await getOnePostById(id);
         if(existPost.length===0) return res.status(404).send("There is no post whith this Id");
-        const comments = await commentsRepository.getCommentsOfPostById(id);
+        const comments = await commentsRepository.getCommentsOfPostById(userId, id);
         if(!comments) return res.status(500).send("Something went wrong on getting the comments");
         return res.status(200).send({comments}); 
     }catch(err){
