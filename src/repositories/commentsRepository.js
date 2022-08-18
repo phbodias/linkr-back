@@ -10,12 +10,22 @@ export async function insertComments(userId, postId, text){
     return rowCount;
 }
 
-export async function getCommentsOfPostById(id){
+export async function getCommentsOfPostById(userId, postId){
     const {rows:results} = await connection.query(`
-    SELECT "userId", text
-    FROM comments
-    WHERE "postId"=$1
-	ORDER BY "createdAt" DESC;`, [id]);
+    SELECT c."userId", c.text, 
+	(CASE 
+	 WHEN c."userId"=f1."friendId" AND f1."userId"=$1 THEN 'following'
+	 WHEN c."userId"=p."userId" THEN 'post!s author'
+	 ELSE '' 
+	 END
+	) as relation
+    FROM comments c
+	LEFT JOIN posts p
+	ON p.id = c."postId"
+	LEFT JOIN friends f1
+	ON f1."friendId" = c."userId"
+    WHERE "postId"=$2
+	ORDER BY c."createdAt" DESC;`, [userId, postId]);
     return results;
 }
 
