@@ -5,6 +5,7 @@ import postSchema from "../schemas/postSchema.js";
 import postUpdateSchema from "../schemas/postUpdateSchema.js";
 import {
     createPost,
+    getSumPosts,
     createRepost,
     listAllPosts,
     editPost,
@@ -18,6 +19,7 @@ const router = Router();
 
 router.post("/posts", tokenVerify, validateSchemas(postSchema), createHashtags, createPost);
 router.get("/posts", tokenVerify, listAllPosts);
+router.get("/posts/totalSum", tokenVerify,getSumPosts)
 router.put("/posts/:id", tokenVerify, validateSchemas(postUpdateSchema), createHashtags, editPost);
 router.delete("/posts/:id", tokenVerify, deletePost);
 

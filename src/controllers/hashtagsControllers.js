@@ -12,13 +12,16 @@ export async function getHashtags(_req,res){
 
 export async function getPostsByHashtag (req,res){
     
+    const limit = req.query.limit || 1e10;
+    const offset = req.query.offset || 0;
     const hashtagText = req.params?.hashtag || null;
+
     if(!hashtagText) return res.status(422).send('Hashtag invalid!');
 
     try{
         const existHashtag = await hashtagsRepository.selectHashtags(hashtagText);
         if(existHashtag.length===0) return res.status(422).send('Hashtag invalid!');
-        const posts = await hashtagsRepository.selectPostsByHashtag(hashtagText);
+        const posts = await hashtagsRepository.selectPostsByHashtag(hashtagText,limit,offset);
         if(!posts) return res.sendStatus(404);
         return res.status(200).send(posts);
            

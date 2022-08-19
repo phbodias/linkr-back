@@ -16,7 +16,28 @@ export async function getOnePostById(id) {
   return await connection.query("SELECT * FROM posts WHERE id=$1", [id]);
 }
 
-export async function getAllPosts(userId) {
+export async function sumOfPosts(userId) {
+  return await connection.query(
+    `SELECT SUM(count) FROM (
+      SELECT 
+              COUNT(DISTINCT p.id)
+              FROM posts p
+              LEFT JOIN friends f ON f."friendId"=p."userId"
+              WHERE (f."userId"=$1 OR p."userId"=$1)
+          
+              UNION
+              
+              SELECT 
+              COUNT(DISTINCT s.id)
+              FROM shared s
+              LEFT JOIN friends f ON f."friendId"=s."userId"
+              WHERE (f."userId"=$1 OR s."userId"=$1)
+        ) as "totalPosts"`,
+        [userId]
+  )
+}
+
+export async function getAllPosts(userId,limit,offset) {
   try {
     const { rows: postsRaw } = await connection.query(
       `(SELECT 
@@ -64,8 +85,8 @@ export async function getAllPosts(userId) {
         WHERE (f."userId"=$1 OR s."userId"=$1) 
         GROUP BY p.id, u1.id, s."createdAt", s."userId",u2.name,u2.id)
         ORDER BY "createdAt" DESC
-      LIMIT 10`,
-      [userId]
+      LIMIT $2 OFFSET $3`,
+      [userId,limit, offset]
     );
     return await formatedPosts(postsRaw) ;
   } catch (err) {

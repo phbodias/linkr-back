@@ -65,7 +65,7 @@ export async function deleteHashtagLink(postId) {
         [postId]
     )
 }
-export async function selectPostsByHashtag(hashtag) {
+export async function selectPostsByHashtag(hashtag,limit,offset) {
     try {
 
         const { rows: postsRaw } = await connection.query(`
@@ -86,8 +86,10 @@ export async function selectPostsByHashtag(hashtag) {
         LEFT JOIN likes l ON l."postId"=p.id
         LEFT JOIN shared s ON s."postId"=p.id
         WHERE h.text=$1
-        GROUP BY p.id, u.id`, 
-        [hashtag]
+        GROUP BY p.id, u.id
+        LIMIT $2 OFFSET $3
+        `, 
+        [hashtag,limit,offset]
         );
 
         return await formatedPosts(postsRaw);
