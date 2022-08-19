@@ -47,8 +47,17 @@ export async function getCommentsCountOfPostById(id) {
     return results[0];
 }
 
+export async function deleteComments(id){
+    const {rowCount} = await connection.query(`
+    DELETE FROM comments 
+    WHERE comments."postId"=$1`,
+    [id]);
+    return rowCount;
+}
+
 export const commentsRepository = {
     insertComments,
     getCommentsOfPostById,
-    getCommentsCountOfPostById
+    getCommentsCountOfPostById,
+    deleteComments
 }
