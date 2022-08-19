@@ -69,20 +69,15 @@ export async function selectPostsByHashtag(hashtag) {
     try {
 
         const { rows: postsRaw } = await connection.query(`
-        SELECT JSON_AGG(item) AS posts
-        FROM (
-        SELECT JSON_BUILD_OBJECT(
-        'id', u.id,
-        'name', u.name,
-        'picture', u."profilePic"
-        ) AS "userOwner", 
+        SELECT 
+        u.id as "userId",
+        u.name,
+        u."profilePic" as picture, 
         p.description,
-        JSON_BUILD_OBJECT(
-            'title', p."urlTitle",
-            'urlDescription', p."urlDescription",
-            'image', p."urlImage",
-            'url', p."urlLink"
-            ) AS "urlData",
+        p."urlTitle",
+        p."urlDescription",
+        p."urlImage",
+        p."urlLink",
         p.id as "postId",
         COUNT(l.id) as "likesCount",
         COUNT(s.id) as "repostCount"
@@ -93,11 +88,11 @@ export async function selectPostsByHashtag(hashtag) {
         LEFT JOIN likes l ON l."postId"=p.id
         LEFT JOIN shared s ON s."postId"=p.id
         WHERE h.text=$1
-        GROUP BY p.id, u.id
-        ) item `, [hashtag]
+        GROUP BY p.id, u.id`, 
+        [hashtag]
         );
 
-        return await formatedPosts(postsRaw[0].posts);
+        return await formatedPosts(postsRaw);
 
     } catch (err) {
         console.log(err);
@@ -110,9 +105,27 @@ export async function formatedPosts(posts) {
     if (posts) {
         for (const post of posts) {
             const { rows: likes } = await getLikeByPostId(post.postId);
-            post.likes = likes;
+            post.likes = likes
         }
-    return posts;
+        const newPost = posts.map(p=>({
+                userOwner: {
+                    id:p.userId,
+                    name:p.name,
+                    picture:p.picture
+                },
+                description:p.description,
+                urlData: {
+                    title:p.urlTitle,
+                    urlDescription:p.urlDescription,
+                    image:p.urlImage,
+                    url:p.urlLink
+                },
+                likesCount:p.likesCount,
+                likes:p.likes,
+                repostCount:p.repostCount,
+                repostedBy:p.repostedBy
+            }))
+    return newPost;
     } else {
         return [];
     }
