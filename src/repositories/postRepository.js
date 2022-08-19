@@ -19,38 +19,57 @@ export async function getOnePostById(id) {
 export async function getAllPosts(userId) {
   try {
     const { rows: postsRaw } = await connection.query(
-      `SELECT JSON_AGG(item) AS posts
-      FROM (
-      SELECT JSON_BUILD_OBJECT(
-      'id', u.id,
-      'name', u.name
-      ) AS "userOwner", 
-      p.description,
-      JSON_BUILD_OBJECT(
-          'title', p."urlTitle",
-          'urlDescription', p."urlDescription",
-          'image', p."urlImage",
-          'url', p."urlLink"
-          ) AS "urlData",
-      p.id as "postId",
-      COUNT(l.id) as "likesCount",
-      COUNT(s.id) as "repostCount",
-      f2."friendId" as "repostedBy"
-      FROM posts p
-      LEFT JOIN users u ON u.id=p."userId"
-      LEFT JOIN likes l ON l."postId"=p.id
-      LEFT JOIN shared s ON s."postId"=p.id
-      LEFT JOIN friends f1 ON f1."friendId"=p."userId"
-      LEFT JOIN friends f2 ON f2."friendId"=s."userId"
-      WHERE f1."userId"=$1 OR f2."userId"=$1 OR p."userId"=$1 OR s."userId"=$1
-      GROUP BY p.id, u.id, f2."friendId", s."createdAt"
-      ORDER BY s."createdAt" DESC,p."createdAt" DESC
-      LIMIT 20
-      ) item `,
+      `(SELECT 
+        u.id as "userId",
+        u.name,
+        u."profilePic" as picture, 
+        p.description,
+        p."urlTitle",
+        p."urlDescription",
+        p."urlImage",
+        p."urlLink",
+        p.id as "postId",
+        COUNT(l.id) as "likesCount",
+        COUNT(s.id) as "repostCount",
+        NULL as "repostedBy",
+        p."createdAt"
+        FROM posts p
+        LEFT JOIN users u ON u.id=p."userId"
+        LEFT JOIN likes l ON l."postId"=p.id
+        LEFT JOIN shared s ON s."postId"=p.id
+        LEFT JOIN friends f ON f."friendId"=p."userId"
+        WHERE (f."userId"=$1 OR p."userId"=$1) 
+        GROUP BY p.id, u.id
+    
+        UNION
+        
+        SELECT 
+        u1.id as "userId",
+        u1.name,
+        u1."profilePic" as picture, 
+        p.description,
+        p."urlTitle",
+        p."urlDescription",
+        p."urlImage",
+        p."urlLink",
+        p.id as "postId",
+        COUNT(l.id) as "likesCount",
+        COUNT(s.id) as "repostCount",
+        u2.name as "repostedBy",
+        s."createdAt"
+        FROM shared s
+        LEFT JOIN posts p ON s."postId"=p.id
+        LEFT JOIN users u1 ON u1.id=p."userId"
+        LEFT JOIN likes l ON l."postId"=p.id
+        LEFT JOIN friends f ON f."friendId"=s."userId"
+        LEFT JOIN users u2 ON u2.id=s."userId"
+        WHERE (f."userId"=$1 OR s."userId"=$1) 
+        GROUP BY p.id, u1.id, s."createdAt", s."userId",u2.name)
+        ORDER BY "createdAt" DESC
+      LIMIT 10`,
       [userId]
     );
-
-    return await formatedPosts(postsRaw[0].posts);
+    return await formatedPosts(postsRaw) ;
   } catch (err) {
     console.log(err);
   }

@@ -49,8 +49,7 @@ export async function listAllPosts(_, res) {
   const userId = res.locals.userId;
   try {
     const posts = await getAllPosts(userId);
-    const formattedPosts = await formatedPosts(posts);
-    res.status(200).send(formattedPosts);
+    res.status(200).send(posts);
   } catch (error) {
     console.log(error);
     res.sendStatus(500);

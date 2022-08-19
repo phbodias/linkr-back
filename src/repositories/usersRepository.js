@@ -20,20 +20,15 @@ export async function searchUserById(id) {
 export async function getPostsByUserId(userId) {
   try {
     const { rows: postsRaw } = await connection.query(
-      `SELECT JSON_AGG(item) AS posts
-            FROM (
-            SELECT JSON_BUILD_OBJECT(
-            'id', u.id,
-            'name', u.name,
-            'picture', u."profilePic"
-            ) AS "userOwner", 
+      `SELECT 
+            u.id as "userId",
+            u.name,
+            u."profilePic" as picture, 
             p.description,
-            JSON_BUILD_OBJECT(
-                'title', p."urlTitle",
-                '"urlDescription"', p."urlDescription",
-                'image', p."urlImage",
-                'url', p."urlLink"
-                ) AS "urlData",
+            p."urlTitle",
+            p."urlDescription",
+            p."urlImage",
+            p."urlLink",
             p.id as "postId",
             COUNT(l.id) as "likesCount",
             COUNT(s.id) as "repostCount"
@@ -44,12 +39,11 @@ export async function getPostsByUserId(userId) {
             WHERE p."userId"=$1
             GROUP BY p.id, u.id
             ORDER BY p."createdAt" DESC
-            LIMIT 20
-            ) item `,
+            LIMIT 10`,
       [userId]
     );
 
-    return await formatedPosts(postsRaw[0].posts);
+    return await formatedPosts(postsRaw);
   } catch (err) {
     console.log(err);
     return res.sendStatus(500);
