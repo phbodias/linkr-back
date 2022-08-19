@@ -7,6 +7,8 @@ import {
   deleteOnePost,
 } from "../repositories/postRepository.js";
 
+import { commentsRepository } from "../repositories/commentsRepository.js";
+
 import {
   formatedPosts,
   hashtagsRepository,
@@ -102,6 +104,8 @@ export async function deletePost(req, res) {
     }
     await hashtagsRepository.deleteHashtagLink(postId);
     await deleteLikeLink(postId);
+    const rowCount= await commentsRepository.deleteComments(postId);
+    if(rowCount===0 || !rowCount) return res.status(500).send("It was not possible to delete comments of this post!");
     await deleteOnePost(postId);
     res.sendStatus(204);
   } catch (error) {
