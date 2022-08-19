@@ -48,14 +48,14 @@ export async function createPost(_, res) {
   }
 }
 
-export async function listAllPosts(_, res) {
+export async function listAllPosts(req, res) {
   const userId = res.locals.userId;
+  const limit = req.query.limit || 100;
   try {
     const posts = await getAllPosts(userId);
-    res.status(200).send(posts);
+    res.status(200).send(posts.slice(0, parseInt(limit)));
   } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
+    res.status(500).send(error.message);
   }
 }
 
