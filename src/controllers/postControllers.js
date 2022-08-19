@@ -56,8 +56,7 @@ export async function listAllPosts(_, res) {
     if (limit) res.status(200).send(posts.slice(0, limit));
     res.status(200).send(posts);
   } catch (error) {
-    console.log(error);
-    res.sendStatus(500);
+    res.status(500).send(error.message);
   }
 }
 
