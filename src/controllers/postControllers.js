@@ -52,7 +52,7 @@ export async function listAllPosts(req, res) {
   const limit = req.query.limit || -1;
   try {
     const posts = await getAllPosts(userId);
-    if (limit > -1) res.status(200).send(posts.slice(0, parseInt(limit)));
+    if (parseInt(limit) > -1) res.status(200).send(posts.slice(0, parseInt(limit)));
     res.status(200).send(posts);
   } catch (error) {
     res.status(500).send(error.message);
