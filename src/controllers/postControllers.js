@@ -48,7 +48,7 @@ export async function createPost(_, res) {
   }
 }
 
-export async function listAllPosts(_, res) {
+export async function listAllPosts(req, res) {
   const userId = res.locals.userId;
   const limit = parseInt(req.query.limit) || false;
   try {
