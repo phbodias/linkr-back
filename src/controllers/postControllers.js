@@ -11,7 +11,6 @@ import {
 import { commentsRepository } from "../repositories/commentsRepository.js";
 
 import {
-  formatedPosts,
   hashtagsRepository,
 } from "../repositories/hashtagsRepository.js";
 import { deleteLiked, deleteLikeLink, likesPost } from "../repositories/likesRepository.js";

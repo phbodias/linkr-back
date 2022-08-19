@@ -78,9 +78,7 @@ export async function selectPostsByHashtag(hashtag) {
         p."urlDescription",
         p."urlImage",
         p."urlLink",
-        p.id as "postId",
-        COUNT(l.id) as "likesCount",
-        COUNT(s.id) as "repostCount"
+        p.id as "postId"
         FROM posts p 
         LEFT JOIN users u ON u.id = p."userId"
         LEFT JOIN "hashtagPosts" hp ON hp."postId" = p.id
