@@ -29,8 +29,6 @@ export async function getAllPosts(userId) {
         p."urlImage",
         p."urlLink",
         p.id as "postId",
-        COUNT(l.id) as "likesCount",
-        COUNT(s.id) as "repostCount",
         NULL as "repostedByName",
         NULL as "repostedBy",
         p."createdAt"
@@ -54,8 +52,6 @@ export async function getAllPosts(userId) {
         p."urlImage",
         p."urlLink",
         p.id as "postId",
-        COUNT(l.id) as "likesCount",
-        COUNT(s.id) as "repostCount",
         u2.name as "repostedByName",
         u2.id as "repostedBy",
         s."createdAt"

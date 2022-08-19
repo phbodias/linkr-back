@@ -105,7 +105,9 @@ export async function formatedPosts(posts) {
     if (posts) {
         for (const post of posts) {
             const { rows: likes } = await getLikeByPostId(post.postId);
+            const { rows: shared } = await getRepostsByPostId(post.postId);
             post.likes = likes
+            post.shared = shared
         }
         const newPost = posts.map(p=>({
                 postId:p.postId,
@@ -121,9 +123,9 @@ export async function formatedPosts(posts) {
                     image:p.urlImage,
                     url:p.urlLink
                 },
-                likesCount:p.likesCount,
+                likesCount:p.likes.length,
                 likes:p.likes,
-                repostCount:p.repostCount,
+                repostCount:p.shared.length,
                 repostedBy:{
                     id:p.repostedBy,
                     name:p.repostedByName
