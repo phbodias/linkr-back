@@ -1,5 +1,6 @@
 import {
   insertPost,
+  sumOfPosts,
   insertShared,
   deleteSharedLink,
   getAllPosts,
@@ -52,6 +53,17 @@ export async function listAllPosts(_, res) {
   try {
     const posts = await getAllPosts(userId);
     res.status(200).send(posts);
+  } catch (error) {
+    console.log(error);
+    res.sendStatus(500);
+  }
+}
+
+export async function getSumPosts (_,res){
+  const userId = res.locals.userId;
+  try {
+    const sum = await sumOfPosts(userId);
+    res.status(200).send(sum.rows[0].sum)
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
