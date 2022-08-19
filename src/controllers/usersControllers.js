@@ -35,6 +35,8 @@ export async function userById(req, res) {
 
 export async function getPostsUser(req, res) {
   const { id } = req.params;
+  const limit = req.query.limit || 1e10;
+  const offset = req.query.offset || 0;
 
   try {
     const { rows: user } = await searchUserById(id);
@@ -44,7 +46,7 @@ export async function getPostsUser(req, res) {
       res.status(404).send("NOT HAVE A USER WITH THIS ID");
     }
 
-    const posts = await getPostsByUserId(id);
+    const posts = await getPostsByUserId(id,limit,offset);
     res.status(200).send(posts);
   } catch (error) {
     console.log(error);

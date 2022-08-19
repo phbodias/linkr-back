@@ -37,7 +37,7 @@ export async function sumOfPosts(userId) {
   )
 }
 
-export async function getAllPosts(userId) {
+export async function getAllPosts(userId,limit,offset) {
   try {
     const { rows: postsRaw } = await connection.query(
       `(SELECT 
@@ -85,8 +85,8 @@ export async function getAllPosts(userId) {
         WHERE (f."userId"=$1 OR s."userId"=$1) 
         GROUP BY p.id, u1.id, s."createdAt", s."userId",u2.name,u2.id)
         ORDER BY "createdAt" DESC
-      LIMIT 10`,
-      [userId]
+      LIMIT $2 OFFSET $3`,
+      [userId,limit, offset]
     );
     return await formatedPosts(postsRaw) ;
   } catch (err) {

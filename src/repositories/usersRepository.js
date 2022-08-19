@@ -17,7 +17,7 @@ export async function searchUserById(id) {
   );
 }
 
-export async function getPostsByUserId(userId) {
+export async function getPostsByUserId(userId,limit,offset) {
   try {
     const { rows: postsRaw } = await connection.query(
       `SELECT 
@@ -37,8 +37,8 @@ export async function getPostsByUserId(userId) {
             WHERE p."userId"=$1
             GROUP BY p.id, u.id
             ORDER BY p."createdAt" DESC
-            LIMIT 10`,
-      [userId]
+            LIMIT $2 OFFSET $3`,
+      [userId,limit,offset]
     );
 
     return await formatedPosts(postsRaw);
