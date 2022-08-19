@@ -26,7 +26,8 @@ export async function getCommentsOfPostById(userId, postId) {
     WHEN c."userId"=p."userId" THEN 'post''s author'
     ELSE '' 
     END
-   ) as relation
+   ) as relation,
+   c.id
    FROM comments c
    LEFT JOIN users u 
    ON u.id = c."userId"
@@ -36,8 +37,20 @@ export async function getCommentsOfPostById(userId, postId) {
    ON f1."friendId" = c."userId"
    WHERE "postId"=$2
    ORDER BY c."createdAt" DESC;`, [userId, postId]);
-    return results;
+   const idResults= results.map(element=>element.id);
+
+    const newIdsResults = idResults.filter((element, index) => {
+    return idResults.indexOf(element) === index;
+    });
+
+    return newIdsResults.map(id=>{
+    return results.find(r=> r.id === id)
+    });
+
+    
 }
+
+
 
 export async function getCommentsCountOfPostById(id) {
     const { rows: results } = await connection.query(`
