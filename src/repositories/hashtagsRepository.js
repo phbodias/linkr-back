@@ -124,7 +124,10 @@ export async function formatedPosts(posts) {
                 likesCount:p.likesCount,
                 likes:p.likes,
                 repostCount:p.repostCount,
-                repostedBy:p.repostedBy
+                repostedBy:{
+                    id:p.repostedBy,
+                    name:p.repostedByName
+                }
             }))
     return newPost;
     } else {

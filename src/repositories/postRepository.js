@@ -31,6 +31,7 @@ export async function getAllPosts(userId) {
         p.id as "postId",
         COUNT(l.id) as "likesCount",
         COUNT(s.id) as "repostCount",
+        NULL as "repostedByName",
         NULL as "repostedBy",
         p."createdAt"
         FROM posts p
@@ -55,7 +56,8 @@ export async function getAllPosts(userId) {
         p.id as "postId",
         COUNT(l.id) as "likesCount",
         COUNT(s.id) as "repostCount",
-        u2.name as "repostedBy",
+        u2.name as "repostedByName",
+        u2.id as "repostedBy",
         s."createdAt"
         FROM shared s
         LEFT JOIN posts p ON s."postId"=p.id
@@ -64,7 +66,7 @@ export async function getAllPosts(userId) {
         LEFT JOIN friends f ON f."friendId"=s."userId"
         LEFT JOIN users u2 ON u2.id=s."userId"
         WHERE (f."userId"=$1 OR s."userId"=$1) 
-        GROUP BY p.id, u1.id, s."createdAt", s."userId",u2.name)
+        GROUP BY p.id, u1.id, s."createdAt", s."userId",u2.name,u2.id)
         ORDER BY "createdAt" DESC
       LIMIT 10`,
       [userId]
@@ -91,6 +93,12 @@ export async function insertShared(userId, postId) {
     `INSERT INTO shared ("userId","postId") VALUES ($1,$2)`,
     [userId, postId]);
 }
+
+export async function deleteSharedLink(id) {
+  return await connection.query('DELETE FROM shared WHERE "postId"=$1', [id]);
+}
+
+
 export async function getRepostsByPostId(postId) {
   return await connection.query(
     `SELECT users.name, users.id
