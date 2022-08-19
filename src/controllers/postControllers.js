@@ -50,8 +50,10 @@ export async function createPost(_, res) {
 
 export async function listAllPosts(_, res) {
   const userId = res.locals.userId;
+  const limit = parseInt(req.query.limit) || false;
   try {
     const posts = await getAllPosts(userId);
+    if (limit) res.status(200).send(posts.slice(0, limit));
     res.status(200).send(posts);
   } catch (error) {
     console.log(error);
