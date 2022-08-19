@@ -1,6 +1,7 @@
 import {
   insertPost,
   insertShared,
+  deleteSharedLink,
   getAllPosts,
   getOnePostById,
   updatePost,
@@ -104,6 +105,7 @@ export async function deletePost(req, res) {
     }
     await hashtagsRepository.deleteHashtagLink(postId);
     await deleteLikeLink(postId);
+    await deleteSharedLink(postId);
     const rowCount= await commentsRepository.deleteComments(postId);
     if(rowCount===0 || !rowCount) return res.status(500).send("It was not possible to delete comments of this post!");
     await deleteOnePost(postId);

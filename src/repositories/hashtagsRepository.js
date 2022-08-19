@@ -108,6 +108,7 @@ export async function formatedPosts(posts) {
             post.likes = likes
         }
         const newPost = posts.map(p=>({
+                postId:p.postId,
                 userOwner: {
                     id:p.userId,
                     name:p.name,
@@ -123,7 +124,10 @@ export async function formatedPosts(posts) {
                 likesCount:p.likesCount,
                 likes:p.likes,
                 repostCount:p.repostCount,
-                repostedBy:p.repostedBy
+                repostedBy:{
+                    id:p.repostedBy,
+                    name:p.repostedByName
+                }
             }))
     return newPost;
     } else {
