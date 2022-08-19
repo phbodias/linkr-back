@@ -49,10 +49,10 @@ export async function createPost(_, res) {
 
 export async function listAllPosts(req, res) {
   const userId = res.locals.userId;
-  const limit = req.query.limit || false;
+  const limit = req.query.limit || -1;
   try {
     const posts = await getAllPosts(userId);
-    if (limit) res.status(200).send(posts.slice(0, parseInt(limit)));
+    if (limit > -1) res.status(200).send(posts.slice(0, parseInt(limit)));
     res.status(200).send(posts);
   } catch (error) {
     res.status(500).send(error.message);
